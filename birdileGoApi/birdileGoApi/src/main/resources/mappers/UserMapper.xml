@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeoni.birdilegoapi.mapper.UserMapper">
+
+    <select id="findByLoginId" parameterType="String" resultType="com.yeoni.birdilegoapi.domain.entity.User">
+        SELECT
+        user_id, login_id, display_name, password, enabled,
+        contact_phone, email, company_name, position, job_level,
+        created_at, updated_at
+        FROM bg_user
+        WHERE login_id = #{loginId}
+    </select>
+
+    <insert id="save" parameterType="com.yeoni.birdilegoapi.domain.entity.User">
+        INSERT INTO bg_user (login_id, display_name, password, enabled, email, contact_phone)
+        VALUES (#{loginId}, #{displayName}, #{password}, true, #{email}, #{contactPhone})
+    </insert>
+
+</mapper>

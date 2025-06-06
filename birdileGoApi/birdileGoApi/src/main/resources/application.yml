@@ -1,0 +1,27 @@
+spring:
+    application:
+        name: birdileGoApi
+    # 데이터베이스 설정
+    datasource:
+        url: jdbc:mariadb://10.211.55.21:3306/birdieGo?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false
+        username: p30
+        password: wild0235!
+        driver-class-name: org.mariadb.jdbc.Driver
+
+# MyBatis 설정
+mybatis:
+    # Mapper XML 파일 위치
+    mapper-locations: classpath:/mappers/**/*.xml
+    # DTO 클래스의 패키지 경로 (카멜 케이스 자동 변환을 위해)
+    type-aliases-package: com.yeoni.birdilegoapi.domain.dto
+    configuration:
+        map-underscore-to-camel-case: true
+
+# JWT 설정
+jwt:
+    secret-key: "aVeryLongAndSecureSecretKeyForBirdieGoProjectPleaseChangeThis" # 32바이트 이상의 매우 안전한 키로 변경하세요.
+    access-token-validity-in-seconds: 3600 # 1시간
+    refresh-token-validity-in-seconds: 86400 # 24시간
+
+server:
+    port: 8081
