@@ -1,6 +1,6 @@
 package com.yeoni.birdilegoapi.jwt;
 
-import com.yeoni.birdilegoapi.domain.dto.TokenResponse;
+import com.yeoni.birdilegoapi.domain.dto.auth.TokenResponse;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;

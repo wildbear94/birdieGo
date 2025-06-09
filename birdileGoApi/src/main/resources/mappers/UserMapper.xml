@@ -13,7 +13,7 @@
         WHERE login_id = #{loginId}
     </select>
 
-    <insert id="save" parameterType="com.yeoni.birdilegoapi.domain.entity.User">
+    <insert id="save" parameterType="com.yeoni.birdilegoapi.domain.entity.User" useGeneratedKeys="true" keyProperty="userId" keyColumn="user_id">
         INSERT INTO bg_user (login_id, display_name, password, enabled, email, contact_phone)
         VALUES (#{loginId}, #{displayName}, #{password}, true, #{email}, #{contactPhone})
     </insert>

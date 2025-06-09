@@ -1,5 +1,6 @@
-package com.yeoni.birdilegoapi.jwt;
+package com.yeoni.birdilegoapi.filter;
 
+import com.yeoni.birdilegoapi.jwt.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

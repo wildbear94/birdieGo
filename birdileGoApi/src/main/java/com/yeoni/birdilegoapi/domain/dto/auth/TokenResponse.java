@@ -1,4 +1,4 @@
-package com.yeoni.birdilegoapi.domain.dto;
+package com.yeoni.birdilegoapi.domain.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

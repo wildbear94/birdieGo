@@ -1,7 +1,7 @@
 package com.yeoni.birdilegoapi.config;
 
 import com.yeoni.birdilegoapi.common.CustomAuthenticationEntryPoint;
-import com.yeoni.birdilegoapi.jwt.JwtAuthenticationFilter;
+import com.yeoni.birdilegoapi.filter.JwtAuthenticationFilter;
 import com.yeoni.birdilegoapi.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

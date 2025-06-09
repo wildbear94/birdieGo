@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeoni.birdilegoapi.mapper.RefreshTokenMapper">
+
+    <insert id="save" parameterType="com.yeoni.birdilegoapi.domain.dto.auth.RefreshTokenResponse">
+        INSERT INTO bg_refresh_token (user_id, token, expires_at)
+        VALUES (#{userId}, #{token}, #{expiresAt})
+    </insert>
+
+    <select id="findByToken" parameterType="String" resultType="com.yeoni.birdilegoapi.domain.dto.auth.RefreshTokenResponse">
+        SELECT token_id, user_id, token, expires_at
+        FROM bg_refresh_token
+        WHERE token = #{token} AND revoked = 0
+    </select>
+
+    <delete id="deleteByToken" parameterType="String">
+        DELETE FROM bg_refresh_token WHERE token = #{token}
+    </delete>
+
+    <delete id="deleteByUserId" parameterType="Long">
+        DELETE FROM bg_refresh_token WHERE user_id = #{userId}
+    </delete>
+
+</mapper>
