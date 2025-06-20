@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeoni.birdilegoapi.mapper.EventMapper">
+
+    <resultMap id="EventWithDetailsResultMap" type="com.yeoni.birdilegoapi.domain.dto.event.EventDetailDto">
+        <association property="eventEntity" javaType="com.yeoni.birdilegoapi.domain.entity.EventEntity">
+            <id property="eventId" column="event_id"/>
+            <result property="creatorId" column="creator_id"/>
+            <result property="eventName" column="event_name"/>
+            <result property="addressId" column="address_id"/>
+        </association>
+
+        <association property="addressEntity" javaType="com.yeoni.birdilegoapi.domain.entity.AddressEntity">
+            <id property="addressId" column="address_id"/>
+            <result property="roadAddress" column="road_address"/>
+            <result property="landlotAddress" column="landlot_address"/>
+        </association>
+
+        <collection property="sponsorEntities" javaType="java.util.List" ofType="com.yeoni.birdilegoapi.domain.entity.SponsorEntity">
+            <id property="sponsorName" column="sponsor_name"/>
+            <result property="eventId" column="event_id"/>
+            <result property="sponsorType" column="sponsor_type"/>
+            <result property="sponsorUrl" column="sponsor_url"/>
+        </collection>
+    </resultMap>
+
+    <insert id="save" parameterType="com.yeoni.birdilegoapi.domain.entity.EventEntity" useGeneratedKeys="true" keyProperty="eventId">
+        INSERT INTO bg_event (creator_id, event_name, region, venue, address_id, start_date, end_date,
+        registration_start, registration_end, contact_phone, image_url, event_status,
+        prize_info, entry_fee, max_participants, event_description)
+        VALUES (#{creatorId}, #{eventName}, #{region}, #{venue}, #{addressId}, #{startDate}, #{endDate},
+        #{registrationStart}, #{registrationEnd}, #{contactPhone}, #{imageUrl}, #{eventStatus},
+        #{prizeInfo}, #{entryFee}, #{maxParticipants}, #{eventDescription})
+    </insert>
+
+    <select id="findDetailById" parameterType="long" resultMap="EventWithDetailsResultMap">
+        SELECT
+            e.*,
+            a.road_address, a.landlot_address, a.extra_address, a.latitude, a.longitude,
+            s.sponsor_name, s.sponsor_type, s.sponsor_url
+        FROM
+            bg_event e
+        LEFT JOIN
+            bg_address a ON e.address_id = a.address_id
+        LEFT JOIN
+            bg_event_sponsor s ON e.event_id = s.event_id
+        WHERE
+            e.event_id = #{eventId}
+    </select>
+
+    <select id="findById" parameterType="long" resultType="com.yeoni.birdilegoapi.domain.entity.EventEntity">
+        SELECT * FROM bg_event WHERE event_id = #{eventId}
+    </select>
+
+    <select id="findAll" parameterType="long" resultType="com.yeoni.birdilegoapi.domain.entity.EventEntity">
+        SELECT * FROM bg_event WHERE creator_id = #{creatorId} ORDER BY start_date DESC
+    </select>
+
+    <update id="update" parameterType="com.yeoni.birdilegoapi.domain.entity.EventEntity">
+        UPDATE bg_event
+        <set>
+            <if test="eventName != null">event_name = #{eventName},</if>
+            <if test="region != null">region = #{region},</if>
+            <if test="venue != null">venue = #{venue},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="registrationStart != null">registration_start = #{registrationStart},</if>
+            <if test="registrationEnd != null">registration_end = #{registrationEnd},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="imageUrl != null">image_url = #{imageUrl},</if>
+            <if test="eventStatus != null">event_status = #{eventStatus},</if>
+            <if test="prizeInfo != null">prize_info = #{prizeInfo},</if>
+            <if test="entryFee != null">entry_fee = #{entryFee},</if>
+            <if test="maxParticipants != null">max_participants = #{maxParticipants},</if>
+            <if test="eventDescription != null">event_description = #{eventDescription},</if>
+        </set>
+        WHERE event_id = #{eventId}
+    </update>
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM bg_event WHERE event_id = #{eventId}
+    </delete>
+
+</mapper>

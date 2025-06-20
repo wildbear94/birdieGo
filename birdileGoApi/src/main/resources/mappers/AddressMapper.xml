@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeoni.birdilegoapi.mapper.AddressMapper">
+    <insert id="save" useGeneratedKeys="true" keyProperty="addressId">
+        INSERT INTO bg_address (road_address, landlot_address, extra_address, latitude, longitude)
+        VALUES (#{roadAddress}, #{landlotAddress}, #{extraAddress}, #{latitude}, #{longitude})
+    </insert>
+    <select id="findById" resultType="com.yeoni.birdilegoapi.domain.entity.AddressEntity">
+        SELECT * FROM bg_address WHERE address_id = #{addressId}
+    </select>
+    <update id="update">
+        UPDATE bg_address SET road_address=#{roadAddress}, landlot_address=#{landlotAddress}, extra_address=#{extraAddress}, latitude=#{latitude}, longitude=#{longitude}
+        WHERE address_id = #{addressId}
+    </update>
+    <delete id="deleteById">
+        DELETE FROM bg_address WHERE address_id = #{addressId}
+    </delete>
+</mapper>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeoni.birdilegoapi.mapper.SponsorMapper">
+    <insert id="save">
+        INSERT INTO bg_event_sponsor (event_id, sponsor_name, sponsor_type, sponsor_url)
+        VALUES (#{eventId}, #{sponsorName}, #{sponsorType}, #{sponsorUrl})
+    </insert>
+    <select id="findByEventId" resultType="com.yeoni.birdilegoapi.domain.entity.SponsorEntity">
+        SELECT * FROM bg_event_sponsor WHERE event_id = #{eventId}
+    </select>
+    <delete id="deleteByEventId">
+        DELETE FROM bg_event_sponsor WHERE event_id = #{eventId}
+    </delete>
+</mapper>
