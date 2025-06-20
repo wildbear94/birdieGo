@@ -62,7 +62,7 @@ public class EventService {
             }
         }
 
-        EventDetailDto eventDetailDto = new EventDetailDto();
+        //EventDetailDto eventDetailDto = new EventDetailDto();
 
         return new EventDetailDto(event, address, sponsors);
     }
