@@ -62,9 +62,11 @@ public class EventService {
             }
         }
 
-        //EventDetailDto eventDetailDto = new EventDetailDto();
-
-        return new EventDetailDto(event, address, sponsors);
+        return EventDetailDto.builder()
+            .eventEntity(event)
+            .addressEntity(address)
+            .sponsorEntities(sponsors)
+            .build();
     }
 
     public Optional<EventEntity> getEventById(Long eventId) {
@@ -109,14 +111,4 @@ public class EventService {
         // 단 한 번의 쿼리로 모든 정보를 가져옴
         return eventMapper.findDetailById(eventId);
     }
-
-    // 엔티티들을 상세 응답 DTO로 변환
-    private EventDetailDto toDetailDto(EventEntity event, AddressEntity address, List<SponsorEntity> sponsors) {
-        return EventDetailDto.builder()
-            .eventEntity(toEventDto(event)) // Entity를 다시 DTO로
-            .addressEntity(toAddressDto(address))
-            .sponsorEntities(sponsors.stream().map(this::toSponsorDto).collect(Collectors.toList()))
-            .build();
-    }
-
 }

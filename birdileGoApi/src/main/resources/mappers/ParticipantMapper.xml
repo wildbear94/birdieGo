@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeoni.birdilegoapi.mapper.ParticipantMapper">
+    <insert id="save" useGeneratedKeys="true" keyProperty="participantId">
+        INSERT INTO bg_participant (participant_name, phone, email, participant_role, club_name,
+        gender, birth_date, skill_level, emergency_contact)
+        VALUES (#{participantName}, #{phone}, #{email}, #{participantRole}, #{clubName},
+        #{gender}, #{birthDate}, #{skillLevel}, #{emergencyContact})
+    </insert>
+
+    <select id="findById" resultType="com.yeoni.birdilegoapi.domain.entity.ParticipantEntity">
+        SELECT * FROM bg_participant WHERE participant_id = #{participantId}
+    </select>
+
+    <update id="update" parameterType="com.yeoni.birdilegoapi.domain.entity.ParticipantEntity">
+        UPDATE bg_participant
+        <set>
+            <if test="participantName != null">participant_name = #{participantName},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="participantRole != null">participant_role = #{participantRole},</if>
+            <if test="clubName != null">club_name = #{clubName},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="birthDate != null">birth_date = #{birthDate},</if>
+            <if test="skillLevel != null">skill_level = #{skillLevel},</if>
+            <if test="emergencyContact != null">emergency_contact = #{emergencyContact},</if>
+        </set>
+        WHERE participant_id = #{participantId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM bg_participant WHERE participant_id = #{participantId}
+    </delete>
+
+    <select id="findByEventId" resultType="com.yeoni.birdilegoapi.domain.entity.ParticipantEntity">
+        SELECT p.* FROM bg_participant p
+        JOIN bg_event_participant ep ON p.participant_id = ep.participant_id
+        WHERE ep.event_id = #{eventId}
+    </select>
+
+    <insert id="registerEventParticipant">
+        INSERT INTO bg_event_participant (event_id, participant_id)
+        VALUES (#{eventId}, #{participantId})
+    </insert>
+
+    <delete id="deleteEventParticipant">
+        DELETE FROM bg_event_participant WHERE event_id = #{eventId} AND participant_id = #{participantId}
+    </delete>
+</mapper>
