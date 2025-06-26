@@ -11,6 +11,6 @@
         SELECT * FROM bg_event_sponsor WHERE event_id = #{eventId}
     </select>
     <delete id="deleteByEventId">
-        DELETE FROM bg_event_sponsor WHERE event_id = #{eventId}
+        DELETE FROM bg_event_sponsor WHERE sponsor_id = #{sponsorId}
     </delete>
 </mapper>

@@ -44,17 +44,21 @@ public class SecurityConfig {
 
             // 세션을 사용하지 않음 (Stateless)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            // 예외 처리 설정 추가
-            .exceptionHandling(ex -> ex.authenticationEntryPoint(customAuthenticationEntryPoint))
+
 
             // API 경로별 접근 권한 설정
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll() // 로그인/회원가입 API는 모두 허용
-                .requestMatchers("/api/events", "/api/events/**").permitAll() // 대회 조회는 모두 허용
                 // Swagger UI 및 API 문서 허용
                 .requestMatchers(SWAGGER_WHITELIST).permitAll()
+                .requestMatchers("/api/auth","/api/auth/**").permitAll() // 로그인은 모두 허용
+                .requestMatchers("/api/events", "/api/events/**").permitAll() // 대회 조회는 모두 허용
+                //.requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/api/users/register").permitAll()
                 .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
             )
+
+            // 예외 처리 설정 추가
+            //.exceptionHandling(ex -> ex.authenticationEntryPoint(customAuthenticationEntryPoint))
 
             // 직접 만든 JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 앞에 추가
             .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);

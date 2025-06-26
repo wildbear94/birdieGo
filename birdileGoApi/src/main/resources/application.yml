@@ -4,7 +4,7 @@ spring:
     # 데이터베이스 설정
     datasource:
         #url: jdbc:mariadb://10.211.55.21:3306/birdieGo?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false
-        url: jdbc:mariadb://192.168.0.250:3306/birdiegouseSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+        url: jdbc:mariadb://192.168.0.250:3306/birdiego?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
         #username: p30
         #password: wild0235!
         username: cock

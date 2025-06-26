@@ -11,17 +11,19 @@ import java.sql.Timestamp;
 public class ParticipantEntity {
 
     private Long participantId;
-    private String participantName;
-    private String phone;
-    private String email;
-    private String participantRole;
-    private String clubName;
+    private Long eventId;
+    private Long uploaderId;
+    private String eventType;
+    private String ageGroup;
+    private String skillLevel;
+    private String teamName;
+    private String participant1Name;
+    private String participant1Birth;
+    private String participant1Phone;
+    private String participant2Name;
+    private String participant2Birth;
+    private String participant2Phone;
     private Timestamp createdAt;
     private Timestamp updatedAt;
-    private String gender;
-    private Date birthDate;
-    private String skillLevel;
-    private String emergencyContact;
-    private String ageRange;
 
 }

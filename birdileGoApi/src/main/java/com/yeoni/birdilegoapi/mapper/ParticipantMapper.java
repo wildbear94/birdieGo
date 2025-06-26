@@ -10,12 +10,18 @@ import java.util.Optional;
 @Mapper
 public interface ParticipantMapper {
 
-    void save(ParticipantEntity participant);
-    Optional<ParticipantEntity> findById(Long participantId);
-    void update(ParticipantEntity participant);
-    void deleteById(Long participantId);
+    void save(ParticipantEntity participantEntity);
+
+    void saveBatch(List<ParticipantEntity> participantEntityList);
+
+    Optional<ParticipantEntity> findById(Long uploadId);
+
     List<ParticipantEntity> findByEventId(Long eventId);
-    void registerEventParticipant(@Param("eventId") Long eventId, @Param("participantId") Long participantId);
-    void deleteEventParticipant(@Param("eventId") Long eventId, @Param("participantId") Long participantId);
+
+    List<ParticipantEntity> findByEventIdAndEventType(@Param("eventId") Long eventId, @Param("eventType") String eventType);
+
+    void update(ParticipantEntity participantEntity);
+
+    void deleteById(Long participantId);
 
 }

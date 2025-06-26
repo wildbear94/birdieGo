@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder
 public class SponsorEntity {
 
+    private Long sponsorId;
     private Long eventId;
     private String sponsorName;
     private String sponsorType;

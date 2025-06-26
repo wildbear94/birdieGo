@@ -19,8 +19,9 @@
         </association>
 
         <collection property="sponsorEntities" javaType="java.util.List" ofType="com.yeoni.birdilegoapi.domain.entity.SponsorEntity">
-            <id property="sponsorName" column="sponsor_name"/>
+            <id property="sponsorId" column="sponsor_id"/>
             <result property="eventId" column="event_id"/>
+            <result property="sponsorName" column="sponsor_name"/>
             <result property="sponsorType" column="sponsor_type"/>
             <result property="sponsorUrl" column="sponsor_url"/>
         </collection>

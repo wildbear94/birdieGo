@@ -10,12 +10,47 @@
         contact_phone, email, company_name, position, job_level,
         created_at, updated_at
         FROM bg_user
-        WHERE login_id = #{loginId}
+        WHERE login_id = #{loginId} AND enabled = 1
+    </select>
+
+    <select id="findById" parameterType="long" resultType="com.yeoni.birdilegoapi.domain.entity.User">
+        SELECT
+        user_id, login_id, display_name, enabled,
+        contact_phone, email, company_name, position, job_level,
+        created_at, updated_at
+        FROM bg_user
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="findAll" resultType="com.yeoni.birdilegoapi.domain.entity.User">
+        SELECT
+        user_id, login_id, display_name, enabled,
+        contact_phone, email, company_name, position, job_level,
+        created_at, updated_at
+        FROM bg_user
     </select>
 
     <insert id="save" parameterType="com.yeoni.birdilegoapi.domain.entity.User" useGeneratedKeys="true" keyProperty="userId" keyColumn="user_id">
         INSERT INTO bg_user (login_id, display_name, password, enabled, email, contact_phone)
         VALUES (#{loginId}, #{displayName}, #{password}, true, #{email}, #{contactPhone})
     </insert>
+
+    <update id="update" parameterType="com.yeoni.birdilegoapi.domain.entity.User">
+        UPDATE bg_user
+        <set>
+            <if test="displayName != null">display_name = #{displayName},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="companyName != null">company_name = #{companyName},</if>
+            <if test="position != null">position = #{position},</if>
+            <if test="jobLevel != null">job_level = #{jobLevel},</if>
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM bg_user WHERE user_id = #{userId}
+    </delete>
 
 </mapper>

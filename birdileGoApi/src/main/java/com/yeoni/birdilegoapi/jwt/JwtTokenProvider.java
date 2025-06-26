@@ -1,6 +1,9 @@
 package com.yeoni.birdilegoapi.jwt;
 
 import com.yeoni.birdilegoapi.domain.dto.auth.TokenResponse;
+import com.yeoni.birdilegoapi.exception.CustomException;
+import com.yeoni.birdilegoapi.exception.ErrorCode;
+import com.yeoni.birdilegoapi.mapper.UserMapper;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -13,6 +16,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -29,16 +33,18 @@ public class JwtTokenProvider {
     private final String secretKey;
     private final long accessTokenValidityInSeconds;
     private final long refreshTokenValidityInSeconds;
+    private final UserMapper userMapper;
     private Key key;
 
     // application.yml에서 설정한 값들을 주입받음
     public JwtTokenProvider(
         @Value("${jwt.secret-key}") String secretKey,
         @Value("${jwt.access-token-validity-in-seconds}") long accessTokenValidity,
-        @Value("${jwt.refresh-token-validity-in-seconds}") long refreshTokenValidity) {
+        @Value("${jwt.refresh-token-validity-in-seconds}") long refreshTokenValidity, UserMapper userMapper) {
         this.secretKey = secretKey;
         this.accessTokenValidityInSeconds = accessTokenValidity * 1000; // 밀리초로 변환
         this.refreshTokenValidityInSeconds = refreshTokenValidity * 1000; // 밀리초로 변환
+        this.userMapper = userMapper;
     }
 
     // 객체 초기화: secretKey를 Base64로 디코딩하여 Key 객체 생성
@@ -92,8 +98,18 @@ public class JwtTokenProvider {
         // 토큰에서 클레임(Claim) 추출
         Claims claims = parseClaims(accessToken);
 
+        // ** 사용자 DB 조회 및 유효성 검증 로직 추가 **
+        String loginId = claims.getSubject();
+        com.yeoni.birdilegoapi.domain.entity.User user = userMapper.findByLoginId(loginId)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (!user.isEnabled()) {
+            throw new CustomException(ErrorCode.USER_DISABLED);
+        }
+
+
         if (claims.get("auth") == null) {
-            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
 
         // 클레임에서 권한 정보 추출
