@@ -1,6 +1,7 @@
 package com.yeoni.birdilegoapi.controller;
 
 import com.yeoni.birdilegoapi.domain.dto.auth.LoginRequest;
+import com.yeoni.birdilegoapi.domain.dto.auth.LoginResponse;
 import com.yeoni.birdilegoapi.domain.dto.auth.TokenResponse;
 import com.yeoni.birdilegoapi.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +19,10 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
 
-        TokenResponse tokenResponse = authService.login(loginRequest.getLoginId(), loginRequest.getPassword());
-        return ResponseEntity.ok(tokenResponse);
+        LoginResponse loginResponse = authService.login(loginRequest.getLoginId(), loginRequest.getPassword());
+        return ResponseEntity.ok(loginResponse);
 
     }
 

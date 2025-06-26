@@ -1,5 +1,6 @@
 package com.yeoni.birdilegoapi.service;
 
+import com.yeoni.birdilegoapi.domain.dto.auth.LoginResponse;
 import com.yeoni.birdilegoapi.domain.dto.auth.RefreshTokenResponse;
 import com.yeoni.birdilegoapi.domain.dto.auth.TokenResponse;
 import com.yeoni.birdilegoapi.domain.entity.User;
@@ -7,6 +8,7 @@ import com.yeoni.birdilegoapi.exception.CustomException;
 import com.yeoni.birdilegoapi.exception.ErrorCode;
 import com.yeoni.birdilegoapi.jwt.JwtTokenProvider;
 import com.yeoni.birdilegoapi.mapper.RefreshTokenMapper;
+import com.yeoni.birdilegoapi.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,9 +31,10 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     //private final AuthenticationManager authenticationManager;
     private final RefreshTokenMapper refreshTokenMapper;
-    private long refreshTokenValidityInMs;
+    private final UserMapper userMapper;
+    //private long refreshTokenValidityInMs;
 
-    public TokenResponse login(String loginId, String password) {
+    public LoginResponse login(String loginId, String password) {
         // 1. 로그인 ID/PW 기반으로 AuthenticationToken 생성
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginId, password);
 
@@ -52,14 +55,18 @@ public class AuthService {
 
         // 4. Refresh Token 처리
         // 인증 객체(Authentication)에서 사용자 정보를 직접 가져와 불필요한 DB 조회를 제거합니다.
-        User user = (User) authentication.getPrincipal();
+        //User user = (User) authentication.getPrincipal();
+        User currentUser = userMapper.findByLoginId(loginId)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+
 
         // 기존의 리프레시 토큰이 있다면 삭제 (정책: 새 로그인 시 이전 세션 무효화)
-        refreshTokenMapper.deleteByUserId(user.getUserId());
+        refreshTokenMapper.deleteByUserId(currentUser.getUserId());
 
         // Refresh Token 객체 생성
         RefreshTokenResponse refreshToken = RefreshTokenResponse.builder()
-            .userId(user.getUserId())
+            .userId(currentUser.getUserId())
             .token(tokenResponse.getRefreshToken())
             // 하드코딩된 만료 시간 대신 설정 파일(application.yml)에서 주입받은 값을 사용합니다.
             .expiresAt(new Timestamp(System.currentTimeMillis() + 86400 * 1000L))
@@ -68,6 +75,13 @@ public class AuthService {
         // (중요) Refresh Token을 DB에 저장하는 로직을 활성화합니다.
         refreshTokenMapper.save(refreshToken);
 
-        return tokenResponse;
+        currentUser.setPassword(null);
+
+
+
+        return LoginResponse.builder()
+            .tokenInfo(tokenResponse)
+            .userInfo(currentUser)
+            .build();
     }
 }
