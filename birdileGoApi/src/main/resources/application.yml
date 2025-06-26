@@ -3,9 +3,12 @@ spring:
         name: birdileGoApi
     # 데이터베이스 설정
     datasource:
-        url: jdbc:mariadb://10.211.55.21:3306/birdieGo?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false
-        username: p30
-        password: wild0235!
+        #url: jdbc:mariadb://10.211.55.21:3306/birdieGo?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false
+        url: jdbc:mariadb://192.168.0.250:3306/birdiegouseSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+        #username: p30
+        #password: wild0235!
+        username: cock
+        password: yeonisoft!1
         driver-class-name: org.mariadb.jdbc.Driver
 
 # MyBatis 설정

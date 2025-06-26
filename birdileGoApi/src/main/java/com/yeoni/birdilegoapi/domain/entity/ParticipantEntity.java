@@ -22,5 +22,6 @@ public class ParticipantEntity {
     private Date birthDate;
     private String skillLevel;
     private String emergencyContact;
+    private String ageRange;
 
 }

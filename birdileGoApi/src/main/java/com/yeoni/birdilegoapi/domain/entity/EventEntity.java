@@ -29,4 +29,5 @@ public class EventEntity {
     private String eventDescription;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    private String eventKind;
 }

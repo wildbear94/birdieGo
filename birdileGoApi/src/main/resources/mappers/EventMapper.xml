@@ -32,7 +32,7 @@
         prize_info, entry_fee, max_participants, event_description)
         VALUES (#{creatorId}, #{eventName}, #{region}, #{venue}, #{addressId}, #{startDate}, #{endDate},
         #{registrationStart}, #{registrationEnd}, #{contactPhone}, #{imageUrl}, #{eventStatus},
-        #{prizeInfo}, #{entryFee}, #{maxParticipants}, #{eventDescription})
+        #{prizeInfo}, #{entryFee}, #{maxParticipants}, #{eventDescription}, #{eventKind})
     </insert>
 
     <select id="findDetailById" parameterType="long" resultMap="EventWithDetailsResultMap">
@@ -75,6 +75,7 @@
             <if test="entryFee != null">entry_fee = #{entryFee},</if>
             <if test="maxParticipants != null">max_participants = #{maxParticipants},</if>
             <if test="eventDescription != null">event_description = #{eventDescription},</if>
+            <if test="eventKind != null">event_kind = #{eventKind},</if>
         </set>
         WHERE event_id = #{eventId}
     </update>

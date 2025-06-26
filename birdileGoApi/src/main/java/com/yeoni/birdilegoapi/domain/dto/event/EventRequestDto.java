@@ -31,6 +31,7 @@ public class EventRequestDto {
     private String eventDescription;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    private String eventKind;
 
     private AddressEntity addressEntity;
 

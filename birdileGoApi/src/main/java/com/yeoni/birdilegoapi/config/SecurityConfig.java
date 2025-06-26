@@ -22,6 +22,12 @@ public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint; // 의존성 주입
+    private static final String[] SWAGGER_WHITELIST = {
+        "/swagger-ui.html",
+        "/swagger-ui/**",
+        "/v3/api-docs/**",
+        "/v3/api-docs"
+    };
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -45,6 +51,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll() // 로그인/회원가입 API는 모두 허용
                 .requestMatchers("/api/events", "/api/events/**").permitAll() // 대회 조회는 모두 허용
+                // Swagger UI 및 API 문서 허용
+                .requestMatchers(SWAGGER_WHITELIST).permitAll()
                 .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
             )
 

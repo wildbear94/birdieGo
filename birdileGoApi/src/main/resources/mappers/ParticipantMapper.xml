@@ -5,9 +5,9 @@
 <mapper namespace="com.yeoni.birdilegoapi.mapper.ParticipantMapper">
     <insert id="save" useGeneratedKeys="true" keyProperty="participantId">
         INSERT INTO bg_participant (participant_name, phone, email, participant_role, club_name,
-        gender, birth_date, skill_level, emergency_contact)
+        gender, birth_date, skill_level, emergency_contact, age_range)
         VALUES (#{participantName}, #{phone}, #{email}, #{participantRole}, #{clubName},
-        #{gender}, #{birthDate}, #{skillLevel}, #{emergencyContact})
+        #{gender}, #{birthDate}, #{skillLevel}, #{emergencyContact}, #{ageRange})
     </insert>
 
     <select id="findById" resultType="com.yeoni.birdilegoapi.domain.entity.ParticipantEntity">
