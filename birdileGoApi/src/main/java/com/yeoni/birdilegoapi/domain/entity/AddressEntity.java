@@ -15,5 +15,5 @@ public class AddressEntity {
     private String extraAddress;
     private BigDecimal latitude;
     private BigDecimal longitude;
-
+    private Long userId;
 }

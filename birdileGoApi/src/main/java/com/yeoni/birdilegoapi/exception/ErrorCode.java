@@ -20,6 +20,7 @@ public enum ErrorCode {
     // 404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "E005", "사용자를 찾을 수 없습니다."),
     EVENT_NOT_FOUND(HttpStatus.NOT_FOUND, "E006", "대회를 찾을 수 없습니다."),
+    PARTICIPANT_NOT_FOUND(HttpStatus.NOT_FOUND, "E007", "참가자를 찾을 수 없습니다."), // 참가자 관련 에러코드 추가
 
     // 403 Forbidden
     FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, "E007", "해당 리소스에 접근할 권한이 없습니다."),

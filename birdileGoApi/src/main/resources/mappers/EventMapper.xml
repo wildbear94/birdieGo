@@ -30,7 +30,7 @@
     <insert id="save" parameterType="com.yeoni.birdilegoapi.domain.entity.EventEntity" useGeneratedKeys="true" keyProperty="eventId">
         INSERT INTO bg_event (creator_id, event_name, region, venue, address_id, start_date, end_date,
         registration_start, registration_end, contact_phone, image_url, event_status,
-        prize_info, entry_fee, max_participants, event_description)
+        prize_info, entry_fee, max_participants, event_description, event_kind)
         VALUES (#{creatorId}, #{eventName}, #{region}, #{venue}, #{addressId}, #{startDate}, #{endDate},
         #{registrationStart}, #{registrationEnd}, #{contactPhone}, #{imageUrl}, #{eventStatus},
         #{prizeInfo}, #{entryFee}, #{maxParticipants}, #{eventDescription}, #{eventKind})

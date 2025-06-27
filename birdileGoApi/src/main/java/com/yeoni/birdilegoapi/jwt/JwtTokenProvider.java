@@ -18,10 +18,12 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.stream.Collectors;
 
@@ -107,6 +109,8 @@ public class JwtTokenProvider {
             throw new CustomException(ErrorCode.USER_DISABLED);
         }
 
+        String authoritiesClaim = claims.get("auth", String.class);
+
 
         if (claims.get("auth") == null) {
             throw new CustomException(ErrorCode.INVALID_TOKEN);
@@ -114,9 +118,10 @@ public class JwtTokenProvider {
 
         // 클레임에서 권한 정보 추출
         Collection<? extends GrantedAuthority> authorities =
-            Arrays.stream(claims.get("auth").toString().split(","))
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+            (!StringUtils.hasText(authoritiesClaim)) ? Collections.emptyList() :
+                Arrays.stream(authoritiesClaim.split(","))
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
 
         // UserDetails 객체를 생성하여 Authentication 객체로 반환
         UserDetails principal = new User(claims.getSubject(), "", authorities);

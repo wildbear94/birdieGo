@@ -5,6 +5,8 @@ import com.opencsv.exceptions.CsvValidationException;
 import com.yeoni.birdilegoapi.domain.dto.participant.ParticipantStats;
 import com.yeoni.birdilegoapi.domain.dto.participant.ParticipantStatsByGroup;
 import com.yeoni.birdilegoapi.domain.entity.ParticipantEntity;
+import com.yeoni.birdilegoapi.exception.CustomException;
+import com.yeoni.birdilegoapi.exception.ErrorCode;
 import com.yeoni.birdilegoapi.mapper.ParticipantMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -98,11 +100,15 @@ public class ParticipantService {
         participantDetails.setParticipantId(participantId);
         participantMapper.update(participantDetails);
         return participantMapper.findById(participantId)
-            .orElseThrow(() -> new RuntimeException("Participant not found after update"));
+            .orElseThrow(() -> new CustomException(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 
     @Transactional
     public void deleteParticipant(Long participantId) {
+
+        participantMapper.findById(participantId)
+            .orElseThrow(() -> new CustomException(ErrorCode.PARTICIPANT_NOT_FOUND));
+
         participantMapper.deleteById(participantId);
     }
 
@@ -126,7 +132,7 @@ public class ParticipantService {
     /**
         * 전체 통계 결과를 eventType을 key로 하는 Map으로 가공하는 메서드
      */
-    public Map<String, List<ParticipantStatsByGroup>> getParticipantStatsGroupedByEventType(Long eventId) {
+    public Map<String, List<ParticipantStatsByGroup>> getParticipantStatsGroupedByEventType(Long eventId){
         // 1. DB에서 플랫한 통계 리스트를 조회합니다.
         List<ParticipantStats> flatList = participantMapper.getStatsForAllEventTypes(eventId);
 

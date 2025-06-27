@@ -5,6 +5,8 @@ import com.yeoni.birdilegoapi.domain.dto.CommonResponse;
 import com.yeoni.birdilegoapi.domain.dto.participant.ParticipantStats;
 import com.yeoni.birdilegoapi.domain.dto.participant.ParticipantStatsByGroup;
 import com.yeoni.birdilegoapi.domain.entity.ParticipantEntity;
+import com.yeoni.birdilegoapi.exception.CustomException;
+import com.yeoni.birdilegoapi.exception.ErrorCode;
 import com.yeoni.birdilegoapi.mapper.UserMapper;
 import com.yeoni.birdilegoapi.service.ParticipantService;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +47,7 @@ public class ParticipantController {
 
             return ResponseEntity.ok(CommonResponse.<Void>builder()
                 .status(HttpStatus.OK.value())
+                .code("SUCCESS")
                 .message("참가자 파일이 성공적으로 업로드되었습니다.")
                 .build());
         } catch (IOException | CsvValidationException e) {
@@ -55,37 +58,24 @@ public class ParticipantController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<CommonResponse<Void>> registerSingleParticipant(
+    public ResponseEntity<CommonResponse<ParticipantEntity>> registerSingleParticipant(
         @PathVariable Long eventId,
         @RequestBody ParticipantEntity participant,
         @AuthenticationPrincipal UserDetails userDetails) {
-        try {
-            Long uploaderId = userMapper.findByLoginId(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found")).getUserId();
+        // 요청을 보낸 사용자가 유효한지 확인
+        userMapper.findByLoginId(userDetails.getUsername())
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-            ParticipantEntity savedParticipant = participantService.registerSingleParticipant(participant, eventId, uploaderId);
+        ParticipantEntity created = participantService.registerParticipant(eventId, participant);
 
-            return ResponseEntity.ok(CommonResponse.<Void>builder()
-                .status(HttpStatus.OK.value())
+        return ResponseEntity.status(HttpStatus.CREATED) // 생성 성공 시 201 Created 반환
+            .body(CommonResponse.<ParticipantEntity>builder()
+                .status(HttpStatus.CREATED.value())
                 .code("SUCCESS")
                 .message("참가자가 성공적으로 등록되었습니다.")
+                .data(created)
                 .build());
-        } catch (IllegalArgumentException e) {
-            return buildErrorResponse("INVALID_INPUT" + e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (RuntimeException e) {
-            return buildErrorResponse("UNAUTHORIZED" + e.getMessage(), HttpStatus.UNAUTHORIZED );
-        }
     }
-
-    /*@GetMapping
-    public ResponseEntity<CommonResponse<List<ParticipantEntity>>> getParticipants(@PathVariable Long eventId) {
-        List<ParticipantEntity> participants = participantService.getParticipantsByEvent(eventId);
-        return ResponseEntity.ok(CommonResponse.<List<ParticipantEntity>>builder()
-            .status(HttpStatus.OK.value())
-            .message("업로드된 참가자 목록 조회 성공")
-            .data(participants)
-            .build());
-    }*/
 
     @GetMapping
     public ResponseEntity<CommonResponse<List<ParticipantEntity>>> getParticipants(
@@ -113,6 +103,7 @@ public class ParticipantController {
 
     @PutMapping("/{participantId}")
     public ResponseEntity<CommonResponse<ParticipantEntity>> updateParticipant(
+        @PathVariable Long eventId,
         @PathVariable Long participantId,
         @RequestBody ParticipantEntity participantDetails) {
         // eventId는 URL 경로에 있지만 현재 로직에서는 직접 사용하지 않음.
@@ -120,6 +111,7 @@ public class ParticipantController {
         ParticipantEntity updatedParticipant = participantService.updateParticipant(participantId, participantDetails);
         return ResponseEntity.ok(CommonResponse.<ParticipantEntity>builder()
             .status(HttpStatus.OK.value())
+            .code("SUCCESS")
             .message("참가자 정보가 성공적으로 수정되었습니다.")
             .data(updatedParticipant)
             .build());
@@ -130,6 +122,7 @@ public class ParticipantController {
         participantService.deleteParticipant(participantId);
         return ResponseEntity.ok(CommonResponse.<Void>builder()
             .status(HttpStatus.OK.value())
+            .code("SUCCESS")
             .message("참가자 정보가 성공적으로 삭제되었습니다.")
             .build());
     }
