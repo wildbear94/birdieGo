@@ -52,7 +52,7 @@ public class SecurityConfig {
                 .requestMatchers(SWAGGER_WHITELIST).permitAll()
                 .requestMatchers("/api/auth","/api/auth/**").permitAll() // 로그인은 모두 허용
                 .requestMatchers("/api/events", "/api/events/**").permitAll() // 대회 조회는 모두 허용
-                //.requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers("/api/users/register").permitAll()
                 .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
             )

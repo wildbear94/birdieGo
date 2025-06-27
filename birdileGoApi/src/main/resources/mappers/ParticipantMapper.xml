@@ -67,4 +67,37 @@
     <delete id="deleteEventParticipant">
         DELETE FROM bg_event_participant WHERE event_id = #{eventId} AND participant_id = #{participantId}
     </delete>
+
+    <select id="getStatsByEventType" resultType="com.yeoni.birdilegoapi.domain.dto.participant.ParticipantStats">
+        SELECT
+        age_group AS ageGroup,
+        skill_level AS skillLevel,
+        COUNT(*) AS teamCount
+        FROM
+        bg_participant
+        WHERE
+        event_id = #{eventId} AND event_type = #{eventType}
+        GROUP BY
+        age_group, skill_level
+        ORDER BY
+        ageGroup, skillLevel
+    </select>
+
+    <select id="getStatsForAllEventTypes" resultType="com.yeoni.birdilegoapi.domain.dto.participant.ParticipantStats">
+        SELECT
+        event_type AS eventType,
+        age_group AS ageGroup,
+        skill_level AS skillLevel,
+        COUNT(*) AS teamCount
+        FROM
+        bg_participant_upload
+        WHERE
+        event_id = #{eventId}
+        GROUP BY
+        event_type, age_group, skill_level
+        ORDER BY
+        eventType, ageGroup, skillLevel
+    </select>
+
+
 </mapper>

@@ -2,6 +2,8 @@ package com.yeoni.birdilegoapi.service;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
+import com.yeoni.birdilegoapi.domain.dto.participant.ParticipantStats;
+import com.yeoni.birdilegoapi.domain.dto.participant.ParticipantStatsByGroup;
 import com.yeoni.birdilegoapi.domain.entity.ParticipantEntity;
 import com.yeoni.birdilegoapi.mapper.ParticipantMapper;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +16,9 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -101,4 +105,44 @@ public class ParticipantService {
     public void deleteParticipant(Long participantId) {
         participantMapper.deleteById(participantId);
     }
+
+    /**
+     * 참가자 통계를 조회하는 서비스 메서드
+     */
+    public List<ParticipantStats> getParticipantStats(Long eventId, String eventType) {
+        if (eventType == null || eventType.trim().isEmpty()) {
+            throw new IllegalArgumentException("종목(eventType)은 필수 입력값입니다.");
+        }
+        return participantMapper.getStatsByEventType(eventId, eventType);
+    }
+
+    /**
+     * 전체 참가자 통계를 조회하는 서비스 메서드
+     */
+    public List<ParticipantStats> getParticipantStatsForAllEventTypes(Long eventId) {
+        return participantMapper.getStatsForAllEventTypes(eventId);
+    }
+
+    /**
+        * 전체 통계 결과를 eventType을 key로 하는 Map으로 가공하는 메서드
+     */
+    public Map<String, List<ParticipantStatsByGroup>> getParticipantStatsGroupedByEventType(Long eventId) {
+        // 1. DB에서 플랫한 통계 리스트를 조회합니다.
+        List<ParticipantStats> flatList = participantMapper.getStatsForAllEventTypes(eventId);
+
+        // 2. Stream API의 Collectors.groupingBy를 사용하여 Map으로 변환합니다.
+        return flatList.stream()
+            .collect(Collectors.groupingBy(
+                ParticipantStats::getEventType, // 최상위 키가 될 eventType을 지정
+                Collectors.mapping( // 값(value)이 될 리스트의 요소를 변환
+                    stats -> new ParticipantStatsByGroup(
+                        stats.getAgeGroup(),
+                        stats.getSkillLevel(),
+                        stats.getTeamCount()
+                    ),
+                    Collectors.toList() // 변환된 요소들을 리스트로 수집
+                )
+            ));
+    }
+
 }
