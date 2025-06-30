@@ -1,5 +1,6 @@
 package com.yeoni.birdilegoapi.mapper;
 
+import com.yeoni.birdilegoapi.domain.dto.group.GroupGenerationRequestDto;
 import com.yeoni.birdilegoapi.domain.dto.participant.ParticipantStats;
 import com.yeoni.birdilegoapi.domain.entity.ParticipantEntity;
 import org.apache.ibatis.annotations.Mapper;
@@ -30,5 +31,12 @@ public interface ParticipantMapper {
 
     // 전체 통계 조회를 위한 메서드 추가
     List<ParticipantStats> getStatsForAllEventTypes(Long eventId);
+
+    List<ParticipantEntity> findParticipantsForGrouping(
+        @Param("eventId") Long eventId,
+        @Param("eventType") String eventType,
+        @Param("ageGroups") List<String> ageGroups,
+        @Param("skillLevels") List<String> skillLevels
+    );
 
 }

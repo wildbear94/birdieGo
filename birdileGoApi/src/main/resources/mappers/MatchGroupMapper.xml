@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeoni.birdilegoapi.mapper.MatchGroupMapper">
+    <insert id="saveGroup" useGeneratedKeys="true" keyProperty="groupId">
+        INSERT INTO bg_match_group (event_id, group_name, event_type, age_group, skill_level, league_type, team_count)
+        VALUES (#{eventId}, #{groupName}, #{eventType}, #{ageGroup}, #{skillLevel}, #{leagueType}, #{teamCount})
+    </insert>
+
+    <insert id="saveGroupTeams">
+        INSERT INTO bg_match_group_team (group_id, participant_id, team_name)
+        VALUES
+        <foreach collection="teams" item="team" separator=",">
+            (#{team.groupId}, #{team.participantUploadId}, #{team.teamName})
+        </foreach>
+    </insert>
+</mapper>

@@ -100,4 +100,23 @@
     </select>
 
 
+    <select id="findParticipantsForGrouping" resultType="com.yeoni.birdilegoapi.domain.entity.ParticipantEntity">
+        SELECT *
+        FROM bg_participant_upload
+        WHERE event_id = #{eventId}
+        AND event_type = #{eventType}
+        <if test="ageGroups != null and !ageGroups.isEmpty()">
+            AND age_group IN
+            <foreach collection="ageGroups" item="ageGroup" open="(" separator="," close=")">
+                #{ageGroup}
+            </foreach>
+        </if>
+        <if test="skillLevels != null and !skillLevels.isEmpty()">
+            AND skill_level IN
+            <foreach collection="skillLevels" item="skillLevel" open="(" separator="," close=")">
+                #{skillLevel}
+            </foreach>
+        </if>
+    </select>
+
 </mapper>
