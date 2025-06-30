@@ -4,15 +4,18 @@ import com.yeoni.birdilegoapi.domain.dto.event.EventDetailDto;
 import com.yeoni.birdilegoapi.domain.dto.event.EventRequestDto;
 import com.yeoni.birdilegoapi.domain.entity.AddressEntity;
 import com.yeoni.birdilegoapi.domain.entity.EventEntity;
+import com.yeoni.birdilegoapi.domain.entity.EventFile;
 import com.yeoni.birdilegoapi.domain.entity.SponsorEntity;
 import com.yeoni.birdilegoapi.exception.CustomException;
 import com.yeoni.birdilegoapi.exception.ErrorCode;
 import com.yeoni.birdilegoapi.mapper.AddressMapper;
+import com.yeoni.birdilegoapi.mapper.EventFileMapper;
 import com.yeoni.birdilegoapi.mapper.EventMapper;
 import com.yeoni.birdilegoapi.mapper.SponsorMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,10 +27,12 @@ public class EventService {
     private final EventMapper eventMapper;
     private final AddressMapper addressMapper;
     private final SponsorMapper sponsorMapper;
+    private final EventFileMapper eventFileMapper;
+    private final FileStorageService fileStorageService;
 
 
     @Transactional
-    public EventDetailDto createEvent(EventRequestDto requestDto, Long creatorId) {
+    public EventDetailDto createEvent(EventRequestDto requestDto, Long creatorId,List<MultipartFile> files) {
 
         // 1. 주소 정보 저장
         AddressEntity address = requestDto.getAddressEntity();
@@ -62,6 +67,23 @@ public class EventService {
             for (SponsorEntity sponsor : sponsors) {
                 sponsor.setEventId(event.getEventId()); // 저장된 이벤트의 ID를 설정
                 sponsorMapper.save(sponsor);
+            }
+        }
+
+        // 4. 첨부 파일 정보 저장
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    String storedFilePath = fileStorageService.storeFile(file);
+                    EventFile eventFile = EventFile.builder()
+                        .eventId(event.getEventId())
+                        .fileType(file.getContentType())
+                        .originalFileName(file.getOriginalFilename())
+                        .storedFilePath(storedFilePath)
+                        .fileSize(file.getSize())
+                        .build();
+                    eventFileMapper.save(eventFile);
+                }
             }
         }
 

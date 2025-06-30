@@ -9,10 +9,12 @@ import com.yeoni.birdilegoapi.mapper.UserMapper;
 import com.yeoni.birdilegoapi.service.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -25,15 +27,18 @@ public class EventController {
     private final UserMapper userMapper; // creatorId를 얻기 위해
 
     // 이벤트 생성
-    @PostMapping
-    public ResponseEntity<CommonResponse<EventEntity>> createEvent(@RequestBody EventRequestDto requestDto, @AuthenticationPrincipal UserDetails userDetails) {
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<CommonResponse<EventEntity>> createEvent(
+        @RequestBody EventRequestDto requestDto,
+        @RequestPart(value = "files", required = false) List<MultipartFile> files,
+        @AuthenticationPrincipal UserDetails userDetails) {
         // Spring Security 컨텍스트에서 사용자 정보(loginId)를 가져옴
         String loginId = userDetails.getUsername();
         // loginId로 실제 User 객체를 조회하여 creatorId를 얻음
         Long creatorId = userMapper.findByLoginId(loginId)
             .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)).getUserId();
 
-        EventEntity createdEventEntity = eventService.createEvent(requestDto, creatorId).getEventEntity();
+        EventEntity createdEventEntity = eventService.createEvent(requestDto, creatorId, files).getEventEntity();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
             CommonResponse.<EventEntity>builder()
