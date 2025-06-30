@@ -1,6 +1,7 @@
 package com.yeoni.birdilegoapi.controller;
 
 import com.yeoni.birdilegoapi.domain.dto.CommonResponse;
+import com.yeoni.birdilegoapi.domain.dto.event.EventDetailDto;
 import com.yeoni.birdilegoapi.domain.dto.event.EventRequestDto;
 import com.yeoni.birdilegoapi.domain.entity.EventEntity;
 import com.yeoni.birdilegoapi.exception.CustomException;
@@ -71,16 +72,16 @@ public class EventController {
 
     // 특정 이벤트 상세 조회
     @GetMapping("/{id}")
-    public ResponseEntity<CommonResponse<EventEntity>> getEventById(@PathVariable Long id) {
-        EventEntity event = eventService.getEventById(id)
+    public ResponseEntity<CommonResponse<EventDetailDto>> getEventById(@PathVariable Long id) {
+        EventDetailDto eventDetail = eventService.getEventDetailById(id)
             .orElseThrow(() -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
 
         return ResponseEntity.ok(
-            CommonResponse.<EventEntity>builder()
+            CommonResponse.<EventDetailDto>builder()
                 .status(HttpStatus.OK.value())
                 .code("SUCCESS")
                 .message("대회 상세 정보 조회가 성공적으로 완료되었습니다.")
-                .data(event)
+                .data(eventDetail)
                 .build());
     }
 

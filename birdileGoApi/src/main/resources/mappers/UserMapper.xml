@@ -4,6 +4,30 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yeoni.birdilegoapi.mapper.UserMapper">
 
+    <resultMap id="UserWithFilesResultMap" type="com.yeoni.birdilegoapi.domain.dto.user.UserDetail">
+        <id property="userId" column="user_id"/>
+        <result property="loginId" column="login_id"/>
+        <result property="displayName" column="display_name"/>
+        <result property="enabled" column="enabled"/>
+        <result property="contactPhone" column="contact_phone"/>
+        <result property="email" column="email"/>
+        <result property="companyName" column="company_name"/>
+        <result property="position" column="position"/>
+        <result property="jobLevel" column="job_level"/>
+        <result property="createdAt" column="u_created_at"/>
+        <result property="updatedAt" column="u_updated_at"/>
+
+        <collection property="files" ofType="com.yeoni.birdilegoapi.domain.entity.UserFile">
+            <id property="fileId" column="file_id"/>
+            <result property="userId" column="user_id"/>
+            <result property="fileType" column="file_type"/>
+            <result property="originalFileName" column="original_file_name"/>
+            <result property="storedFilePath" column="stored_file_path"/>
+            <result property="fileSize" column="file_size"/>
+            <result property="createdAt" column="f_created_at"/>
+        </collection>
+    </resultMap>
+
     <select id="findByLoginId" parameterType="String" resultType="com.yeoni.birdilegoapi.domain.entity.User">
         SELECT
         user_id, login_id, display_name, password, enabled,
@@ -11,6 +35,19 @@
         created_at, updated_at
         FROM bg_user
         WHERE login_id = #{loginId} AND enabled = 1
+    </select>
+
+    <select id="findDetailById" parameterType="long" resultMap="UserWithFilesResultMap">
+        SELECT
+        u.user_id, u.login_id, u.display_name, u.enabled, u.contact_phone, u.email,
+        u.company_name, u.position, u.job_level, u.created_at AS u_created_at, u.updated_at AS u_updated_at,
+        f.file_id, f.file_type, f.original_file_name, f.stored_file_path, f.file_size, f.created_at AS f_created_at
+        FROM
+        bg_user u
+        LEFT JOIN
+        bg_user_file f ON u.user_id = f.user_id
+        WHERE
+        u.user_id = #{userId}
     </select>
 
     <select id="findById" parameterType="long" resultType="com.yeoni.birdilegoapi.domain.entity.User">

@@ -1,7 +1,10 @@
 package com.yeoni.birdilegoapi.controller;
 
 import com.yeoni.birdilegoapi.domain.dto.CommonResponse;
+import com.yeoni.birdilegoapi.domain.dto.user.UserDetail;
 import com.yeoni.birdilegoapi.domain.entity.User;
+import com.yeoni.birdilegoapi.exception.CustomException;
+import com.yeoni.birdilegoapi.exception.ErrorCode;
 import com.yeoni.birdilegoapi.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -58,26 +61,18 @@ public class UserController {
 
     // 특정 사용자 상세 조회
     @GetMapping("/{id}")
-    public ResponseEntity<CommonResponse<User>> getUserById(@PathVariable Long id) {
-        return userService.getUserById(id)
-            .map(user -> {
-                user.setPassword(null);
-                CommonResponse<User> response = CommonResponse.<User>builder()
-                    .status(HttpStatus.OK.value())
-                    .code("SUCCESS")
-                    .message("사용자 정보 조회가 성공적으로 완료되었습니다.")
-                    .data(user)
-                    .build();
-                return ResponseEntity.ok(response);
-            })
-            .orElseGet(() -> {
-                CommonResponse<User> response = CommonResponse.<User>builder()
-                    .status(HttpStatus.NOT_FOUND.value())
-                    .code("USER_NOT_FOUND")
-                    .message("해당 ID의 사용자를 찾을 수 없습니다.")
-                    .build();
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-            });
+    public ResponseEntity<CommonResponse<UserDetail>> getUserById(@PathVariable Long id) {
+        UserDetail userDetail = userService.getUserDetailById(id)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        userDetail.setPassword(null); // 비밀번호 필드 제외
+
+        return ResponseEntity.ok(CommonResponse.<UserDetail>builder()
+            .status(HttpStatus.OK.value())
+            .code("SUCCESS")
+            .message("사용자 상세 정보 조회가 성공적으로 완료되었습니다.")
+            .data(userDetail)
+            .build());
     }
 
     // 사용자 정보 수정

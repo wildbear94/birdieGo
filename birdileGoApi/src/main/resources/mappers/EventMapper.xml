@@ -48,6 +48,16 @@
             <result property="sponsorType" column="sponsor_type"/>
             <result property="sponsorUrl" column="sponsor_url"/>
         </collection>
+
+        <collection property="files" ofType="com.yeoni.birdilegoapi.domain.entity.EventFile">
+            <id property="fileId" column="file_id"/>
+            <result property="eventId" column="event_id"/>
+            <result property="fileType" column="file_type"/>
+            <result property="originalFileName" column="original_file_name"/>
+            <result property="storedFilePath" column="stored_file_path"/>
+            <result property="fileSize" column="file_size"/>
+            <result property="createdAt" column="ef_created_at"/>
+        </collection>
     </resultMap>
 
     <insert id="save" parameterType="com.yeoni.birdilegoapi.domain.entity.EventEntity" useGeneratedKeys="true" keyProperty="eventId">
@@ -61,17 +71,20 @@
 
     <select id="findDetailById" parameterType="long" resultMap="EventWithDetailsResultMap">
         SELECT
-            e.*,
-            a.road_address, a.landlot_address, a.extra_address, a.latitude, a.longitude, a.user_id,
-            s.sponsor_name, s.sponsor_type, s.sponsor_url
+        e.*,
+        a.road_address, a.landlot_address, a.extra_address, a.latitude, a.longitude,
+        s.sponsor_name, s.sponsor_type, s.sponsor_url,
+        f.file_id, f.file_type, f.original_file_name, f.stored_file_path, f.file_size, f.created_at AS ef_created_at
         FROM
-            bg_event e
+        bg_event e
         LEFT JOIN
-            bg_address a ON e.address_id = a.address_id
+        bg_address a ON e.address_id = a.address_id
         LEFT JOIN
-            bg_event_sponsor s ON e.event_id = s.event_id
+        bg_event_sponsor s ON e.event_id = s.event_id
+        LEFT JOIN
+        bg_event_file f ON e.event_id = f.event_id
         WHERE
-            e.event_id = #{eventId}
+        e.event_id = #{eventId}
     </select>
 
     <select id="findById" parameterType="long" resultMap="EventResultMap">

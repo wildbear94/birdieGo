@@ -2,6 +2,7 @@ package com.yeoni.birdilegoapi.domain.dto.event;
 
 import com.yeoni.birdilegoapi.domain.entity.AddressEntity;
 import com.yeoni.birdilegoapi.domain.entity.EventEntity;
+import com.yeoni.birdilegoapi.domain.entity.EventFile;
 import com.yeoni.birdilegoapi.domain.entity.SponsorEntity;
 import lombok.Builder;
 import lombok.Data;
@@ -17,5 +18,6 @@ public class EventDetailDto {
     private AddressEntity addressEntity;
     // 연관된 SponsorEntity 목록
     private List<SponsorEntity> sponsorEntities;
+    private List<EventFile> files;
 
 }

@@ -1,5 +1,6 @@
 package com.yeoni.birdilegoapi.service;
 
+import com.yeoni.birdilegoapi.domain.dto.user.UserDetail;
 import com.yeoni.birdilegoapi.domain.entity.User;
 import com.yeoni.birdilegoapi.domain.entity.UserFile;
 import com.yeoni.birdilegoapi.mapper.UserFileMapper;
@@ -60,6 +61,10 @@ public class UserService {
 
     public Optional<User> getUserById(Long userId) {
         return userMapper.findById(userId);
+    }
+
+    public Optional<UserDetail> getUserDetailById(Long userId) {
+        return userMapper.findDetailById(userId);
     }
 
     public List<User> getAllUsers() {

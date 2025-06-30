@@ -1,5 +1,6 @@
 package com.yeoni.birdilegoapi.mapper;
 
+import com.yeoni.birdilegoapi.domain.dto.user.UserDetail;
 import com.yeoni.birdilegoapi.domain.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -10,6 +11,9 @@ import java.util.Optional;
 public interface UserMapper {
     // 로그인 ID로 사용자 정보 조회
     Optional<User> findByLoginId(String loginId);
+
+    // 사용자 상세 정보 조회를 위한 메서드 추가
+    Optional<UserDetail> findDetailById(Long userId);
 
     // 사용자 ID로 사용자 정보 조회
     Optional<User> findById(Long userId);
