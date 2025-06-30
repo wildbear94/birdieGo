@@ -3,11 +3,14 @@ package com.yeoni.birdilegoapi.service;
 import com.yeoni.birdilegoapi.exception.CustomException;
 import com.yeoni.birdilegoapi.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -62,6 +65,20 @@ public class FileStorageService {
             return targetDirectory.getFileName().toString() + "/" + storedFileName;
         } catch (IOException ex) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public Resource loadFileAsResource(String filename) {
+        try {
+            Path filePath = this.rootLocation.resolve(filename).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists()) {
+                return resource;
+            } else {
+                throw new RuntimeException("File not found " + filename);
+            }
+        } catch (MalformedURLException ex) {
+            throw new RuntimeException("File not found " + filename, ex);
         }
     }
 }

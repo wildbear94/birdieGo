@@ -54,6 +54,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/events", "/api/events/**").permitAll() // 대회 조회는 모두 허용
                 .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers("/api/users/register").permitAll()
+                .requestMatchers("/api/files/**").permitAll() // 파일 접근 경로 허용 추가
                 .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
             )
 
