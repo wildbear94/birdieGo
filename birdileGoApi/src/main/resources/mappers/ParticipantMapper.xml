@@ -29,13 +29,13 @@
     </select>
 
     <select id="findByEventId" resultType="com.yeoni.birdilegoapi.domain.entity.ParticipantEntity">
-        SELECT * FROM bg_participant WHERE event_id = #{eventId} ORDER BY upload_id ASC
+        SELECT * FROM bg_participant WHERE event_id = #{eventId} ORDER BY uploader_id ASC
     </select>
 
     <select id="findByEventIdAndEventType" resultType="com.yeoni.birdilegoapi.domain.entity.ParticipantEntity">
         SELECT * FROM bg_participant
         WHERE event_id = #{eventId} AND event_type = #{eventType}
-        ORDER BY upload_id ASC
+        ORDER BY uploader_id ASC
     </select>
 
     <update id="update" parameterType="com.yeoni.birdilegoapi.domain.entity.ParticipantEntity">

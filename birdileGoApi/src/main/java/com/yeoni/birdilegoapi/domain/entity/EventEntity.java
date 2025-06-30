@@ -6,6 +6,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -21,13 +22,15 @@ public class EventEntity {
     private Date registrationStart;
     private Date registrationEnd;
     private String contactPhone;
+    private String imageInfo;
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
+    private String sponeId;
     private String imageUrl;
     private String eventStatus;
     private String prizeInfo;
     private BigDecimal entryFee;
     private Integer maxParticipants;
     private String eventDescription;
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
     private String eventKind;
 }

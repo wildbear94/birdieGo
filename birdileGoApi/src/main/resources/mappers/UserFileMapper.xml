@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeoni.birdilegoapi.mapper.UserFileMapper">
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="fileId">
+        INSERT INTO bg_user_file (user_id, file_type, original_file_name, stored_file_path, file_size)
+        VALUES (#{userId}, #{fileType}, #{originalFileName}, #{storedFilePath}, #{fileSize})
+    </insert>
+
+    <select id="findByUserId" resultType="com.yeoni.birdilegoapi.domain.entity.UserFile">
+        SELECT * FROM bg_user_file WHERE user_id = #{userId}
+    </select>
+
+</mapper>

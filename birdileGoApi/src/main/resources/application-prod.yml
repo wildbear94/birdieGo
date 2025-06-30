@@ -1,10 +1,6 @@
 spring:
     application:
         name: birdileGoApi
-
-    profiles:
-        active: dev
-        default: dev
     # 데이터베이스 설정
     datasource:
         url: jdbc:mariadb://192.168.0.250:3306/birdiego?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
@@ -30,7 +26,11 @@ jwt:
 
 # 파일 업로드 관련 설정 추가
 file:
-    upload-dir: /Volumes/SANDISK/github_repository/birdieGo/birdileGoApi/uploads/
+    upload-dir: /data/apps/birdiego/uploads/
+
+logging:
+    level:
+        com.yeoni.birdilegoapi: INFO
 
 server:
     port: 8081

@@ -4,6 +4,28 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yeoni.birdilegoapi.mapper.EventMapper">
 
+    <resultMap id="EventResultMap" type="com.yeoni.birdilegoapi.domain.entity.EventEntity">
+        <id property="eventId" column="event_id"/>
+        <result property="creatorId" column="creator_id"/>
+        <result property="eventName" column="event_name"/>
+        <result property="region" column="region"/>
+        <result property="venue" column="venue"/>
+        <result property="addressId" column="address_id"/>
+        <result property="startDate" column="start_date"/>
+        <result property="endDate" column="end_date"/>
+        <result property="registrationStart" column="registration_start"/>
+        <result property="registrationEnd" column="registration_end"/>
+        <result property="contactPhone" column="contact_phone"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="eventStatus" column="event_status"/>
+        <result property="prizeInfo" column="prize_info"/>
+        <result property="entryFee" column="entry_fee"/>
+        <result property="maxParticipants" column="max_participants"/>
+        <result property="eventDescription" column="event_description"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
     <resultMap id="EventWithDetailsResultMap" type="com.yeoni.birdilegoapi.domain.dto.event.EventDetailDto">
         <association property="eventEntity" javaType="com.yeoni.birdilegoapi.domain.entity.EventEntity">
             <id property="eventId" column="event_id"/>
@@ -16,6 +38,7 @@
             <id property="addressId" column="address_id"/>
             <result property="roadAddress" column="road_address"/>
             <result property="landlotAddress" column="landlot_address"/>
+            <result property="userId" column="user_id"/>
         </association>
 
         <collection property="sponsorEntities" javaType="java.util.List" ofType="com.yeoni.birdilegoapi.domain.entity.SponsorEntity">
@@ -39,7 +62,7 @@
     <select id="findDetailById" parameterType="long" resultMap="EventWithDetailsResultMap">
         SELECT
             e.*,
-            a.road_address, a.landlot_address, a.extra_address, a.latitude, a.longitude,
+            a.road_address, a.landlot_address, a.extra_address, a.latitude, a.longitude, a.user_id,
             s.sponsor_name, s.sponsor_type, s.sponsor_url
         FROM
             bg_event e
@@ -51,11 +74,11 @@
             e.event_id = #{eventId}
     </select>
 
-    <select id="findById" parameterType="long" resultType="com.yeoni.birdilegoapi.domain.entity.EventEntity">
+    <select id="findById" parameterType="long" resultMap="EventResultMap">
         SELECT * FROM bg_event WHERE event_id = #{eventId}
     </select>
 
-    <select id="findAll" parameterType="long" resultType="com.yeoni.birdilegoapi.domain.entity.EventEntity">
+    <select id="findAll" parameterType="long" resultMap="EventResultMap">
         SELECT * FROM bg_event WHERE creator_id = #{creatorId} ORDER BY start_date DESC
     </select>
 

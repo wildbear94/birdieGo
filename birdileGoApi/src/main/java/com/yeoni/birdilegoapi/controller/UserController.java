@@ -5,8 +5,10 @@ import com.yeoni.birdilegoapi.domain.entity.User;
 import com.yeoni.birdilegoapi.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -18,16 +20,19 @@ public class UserController {
     private final UserService userService;
 
     // 사용자 등록 (회원가입)
-    @PostMapping("/register")
-    public ResponseEntity<CommonResponse<User>> registerUser(@RequestBody User user) {
-        User registeredUser = userService.registerUser(user);
+    @PostMapping(value = "/register", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<CommonResponse<User>> registerUser(
+        @RequestBody User user,
+        @RequestPart(value = "files", required = false) List<MultipartFile> files
+    ) {
+        User registeredUser = userService.registerUser(user, files);
         // 비밀번호 필드는 응답에서 제외
         registeredUser.setPassword(null);
 
         CommonResponse<User> response = CommonResponse.<User>builder()
             .status(HttpStatus.OK.value())
             .code("SUCCESS")
-            .message("사용자 등록이 성공적으로 완료되었습니다.")
+            .message("사용자 등록 및 파일 업로드가 성공적으로 완료되었습니다.")
             .data(registeredUser)
             .build();
 
