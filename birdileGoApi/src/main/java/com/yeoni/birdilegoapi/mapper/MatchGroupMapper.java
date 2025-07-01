@@ -17,5 +17,13 @@ public interface MatchGroupMapper {
     void deleteGroupById(Long groupId);
     Optional<MatchGroupDetailDto> findGroupDetailsById(Long groupId);
     List<MatchGroup> findAllGroupsByEventId(Long eventId);
+    /**
+     * 특정 대회의 특정 종목에 해당하는 리그/풀리그 조 목록을 조회하는 메서드
+     */
+    List<MatchGroup> findGroupsByEventTypeAndLeagueTypes(
+        @Param("eventId") Long eventId,
+        @Param("eventType") String eventType,
+        @Param("leagueTypes") List<String> leagueTypes
+    );
 
 }

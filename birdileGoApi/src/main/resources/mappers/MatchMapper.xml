@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeoni.birdilegoapi.mapper.MatchMapper">
+    <insert id="saveMatches">
+        INSERT INTO bg_match (event_id, group_id, group_name, court, match_time, team1_id, team1_name, team2_id, team2_name, match_status)
+        VALUES
+        <foreach collection="matches" item="match" separator=",">
+            (#{match.eventId}, #{match.groupId}, #{match.groupName}, #{match.court}, #{match.matchTime},
+            #{match.team1Id}, #{match.team1Name}, #{match.team2Id}, #{match.team2Name}, 'SCHEDULED')
+        </foreach>
+    </insert>
+
+    <select id="findAllByEventId" parameterType="long" resultType="com.yeoni.birdilegoapi.domain.entity.Match">
+        SELECT *
+        FROM bg_match
+        WHERE event_id = #{eventId}
+        ORDER BY match_time ASC, court ASC
+    </select>
+
+    <select id="findById" parameterType="long" resultType="com.yeoni.birdilegoapi.domain.entity.Match">
+        SELECT *
+        FROM bg_match
+        WHERE match_id = #{matchId}
+    </select>
+
+    <update id="update" parameterType="com.yeoni.birdilegoapi.domain.entity.Match">
+        UPDATE bg_match
+        <set>
+            <if test="court != null">court = #{court},</if>
+            <if test="matchTime != null">match_time = #{matchTime},</if>
+            <if test="matchStatus != null">match_status = #{matchStatus},</if>
+        </set>
+        WHERE match_id = #{matchId}
+    </update>
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM bg_match WHERE match_id = #{matchId}
+    </delete>
+
+</mapper>

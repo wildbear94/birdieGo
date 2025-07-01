@@ -65,4 +65,18 @@
         ORDER BY group_name ASC
     </select>
 
+    <select id="findGroupsByEventTypeAndLeagueTypes" resultMap="BaseMatchGroupResultMap">
+        SELECT *
+        FROM bg_match_group
+        WHERE event_id = #{eventId}
+        AND event_type = #{eventType}
+        <if test="leagueTypes != null and !leagueTypes.isEmpty()">
+            AND league_type IN
+            <foreach collection="leagueTypes" item="leagueType" open="(" separator="," close=")">
+                #{leagueType}
+            </foreach>
+        </if>
+        ORDER BY group_name ASC
+    </select>
+
 </mapper>
