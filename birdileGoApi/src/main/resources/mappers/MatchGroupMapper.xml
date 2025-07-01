@@ -1,6 +1,30 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yeoni.birdilegoapi.mapper.MatchGroupMapper">
+
+    <resultMap id="MatchGroupWithTeamsResultMap" type="com.yeoni.birdilegoapi.domain.dto.group.MatchGroupDetailDto"
+               extends="com.yeoni.birdilegoapi.mapper.MatchGroupMapper.BaseMatchGroupResultMap">
+        <collection property="teams" ofType="com.yeoni.birdilegoapi.domain.entity.MatchGroupTeam">
+            <id property="groupTeamId" column="group_team_id"/>
+            <result property="groupId" column="group_id"/>
+            <result property="participantId" column="participant_id"/>
+            <result property="teamName" column="team_name"/>
+            <result property="createdAt" column="mgt_created_at"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="BaseMatchGroupResultMap" type="com.yeoni.birdilegoapi.domain.entity.MatchGroup">
+        <id property="groupId" column="group_id"/>
+        <result property="eventId" column="event_id"/>
+        <result property="groupName" column="group_name"/>
+        <result property="eventType" column="event_type"/>
+        <result property="ageGroup" column="age_group"/>
+        <result property="skillLevel" column="skill_level"/>
+        <result property="leagueType" column="league_type"/>
+        <result property="teamCount" column="team_count"/>
+        <result property="createdAt" column="mg_created_at"/>
+    </resultMap>
+
     <insert id="saveGroup" useGeneratedKeys="true" keyProperty="groupId">
         INSERT INTO bg_match_group (event_id, group_name, event_type, age_group, skill_level, league_type, team_count)
         VALUES (#{eventId}, #{groupName}, #{eventType}, #{ageGroup}, #{skillLevel}, #{leagueType}, #{teamCount})
@@ -13,4 +37,32 @@
             (#{team.groupId}, #{team.participantUploadId}, #{team.teamName})
         </foreach>
     </insert>
+
+    <delete id="deleteGroupById" parameterType="long">
+        DELETE FROM bg_match_group WHERE group_id = #{groupId}
+    </delete>
+
+    <select id="findGroupDetailsById" parameterType="long" resultMap="MatchGroupWithTeamsResultMap">
+        SELECT
+        mg.*,
+        mg.created_at AS mg_created_at,
+        mgt.group_team_id,
+        mgt.participant_upload_id,
+        mgt.team_name,
+        mgt.created_at AS mgt_created_at
+        FROM
+        bg_match_group mg
+        LEFT JOIN
+        bg_match_group_team mgt ON mg.group_id = mgt.group_id
+        WHERE
+        mg.group_id = #{groupId}
+    </select>
+
+    <select id="findAllGroupsByEventId" parameterType="long" resultMap="BaseMatchGroupResultMap">
+        SELECT *
+        FROM bg_match_group
+        WHERE event_id = #{eventId}
+        ORDER BY group_name ASC
+    </select>
+
 </mapper>

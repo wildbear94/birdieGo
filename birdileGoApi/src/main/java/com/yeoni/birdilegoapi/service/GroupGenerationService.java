@@ -2,9 +2,12 @@ package com.yeoni.birdilegoapi.service;
 
 import com.yeoni.birdilegoapi.domain.dto.group.GroupGenerationRequestDto;
 import com.yeoni.birdilegoapi.domain.dto.group.LeagueType;
+import com.yeoni.birdilegoapi.domain.dto.group.MatchGroupDetailDto;
 import com.yeoni.birdilegoapi.domain.entity.MatchGroup;
 import com.yeoni.birdilegoapi.domain.entity.MatchGroupTeam;
 import com.yeoni.birdilegoapi.domain.entity.ParticipantEntity;
+import com.yeoni.birdilegoapi.exception.CustomException;
+import com.yeoni.birdilegoapi.exception.ErrorCode;
 import com.yeoni.birdilegoapi.mapper.MatchGroupMapper;
 import com.yeoni.birdilegoapi.mapper.ParticipantMapper;
 import lombok.RequiredArgsConstructor;
@@ -129,6 +132,23 @@ public class GroupGenerationService {
                 .build());
         }
         matchGroupMapper.saveGroupTeams(groupTeams);
+    }
+
+    @Transactional
+    public void deleteGroup(Long groupId) {
+        // 상세 정보를 먼저 조회하여 없는 경우 예외 처리
+        matchGroupMapper.findGroupDetailsById(groupId)
+            .orElseThrow(() -> new CustomException(ErrorCode.GROUP_NOT_FOUND)); // 적절한 에러코드로 변경 필요
+        matchGroupMapper.deleteGroupById(groupId);
+    }
+
+    public MatchGroupDetailDto getGroupDetails(Long groupId){
+        return matchGroupMapper.findGroupDetailsById(groupId)
+            .orElseThrow(() -> new CustomException(ErrorCode.GROUP_NOT_FOUND)); // 적절한 에러코드로 변경 필요
+    }
+
+    public List<MatchGroup> getAllGroupsByEvent(Long eventId) {
+        return matchGroupMapper.findAllGroupsByEventId(eventId);
     }
 
 }
