@@ -35,7 +35,7 @@
     <select id="findByEventIdAndEventType" resultType="com.yeoni.birdilegoapi.domain.entity.ParticipantEntity">
         SELECT * FROM bg_participant
         WHERE event_id = #{eventId} AND event_type = #{eventType}
-        ORDER BY ageGroup, skillLevel
+        ORDER BY age_group, skill_level
     </select>
 
     <update id="update" parameterType="com.yeoni.birdilegoapi.domain.entity.ParticipantEntity">
