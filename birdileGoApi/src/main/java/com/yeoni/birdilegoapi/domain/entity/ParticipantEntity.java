@@ -25,5 +25,6 @@ public class ParticipantEntity {
     private String participant2Phone;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    private String userYn;
 
 }

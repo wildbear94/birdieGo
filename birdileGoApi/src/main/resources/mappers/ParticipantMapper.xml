@@ -51,12 +51,91 @@
             <if test="participant2Name != null">participant2_name = #{participant2Name},</if>
             <if test="participant2Birth != null">participant2_birth = #{participant2Birth},</if>
             <if test="participant2Phone != null">participant2_phone = #{participant2Phone},</if>
+            <if test="userYn != null">user_yn = #{userYn},</if>
         </set>
         WHERE participant_id = #{participantId}
     </update>
 
+    <update id="updateMultiple">
+        UPDATE bg_participant_upload
+        <trim prefix="SET" suffixOverrides=",">
+            <trim prefix="event_type = CASE upload_id" suffix="END,">
+                <foreach collection="participants" item="p">
+                    <if test="p.eventType != null">WHEN #{p.uploadId} THEN #{p.eventType}</if>
+                </foreach>
+            </trim>
+            <trim prefix="age_group = CASE upload_id" suffix="END,">
+                <foreach collection="participants" item="p">
+                    <if test="p.ageGroup != null">WHEN #{p.uploadId} THEN #{p.ageGroup}</if>
+                </foreach>
+            </trim>
+            <trim prefix="skill_level = CASE upload_id" suffix="END,">
+                <foreach collection="participants" item="p">
+                    <if test="p.skillLevel != null">WHEN #{p.uploadId} THEN #{p.skillLevel}</if>
+                </foreach>
+            </trim>
+            <trim prefix="team_name = CASE upload_id" suffix="END,">
+                <foreach collection="participants" item="p">
+                    <if test="p.teamName != null">WHEN #{p.uploadId} THEN #{p.teamName}</if>
+                </foreach>
+            </trim>
+            <trim prefix="participant1_name = CASE upload_id" suffix="END,">
+                <foreach collection="participants" item="p">
+                    <if test="p.participant1Name != null">WHEN #{p.uploadId} THEN #{p.participant1Name}</if>
+                </foreach>
+            </trim>
+            <trim prefix="participant1_birth = CASE upload_id" suffix="END,">
+                <foreach collection="participants" item="p">
+                    <if test="p.participant1Birth != null">WHEN #{p.uploadId} THEN #{p.participant1Birth}</if>
+                </foreach>
+            </trim>
+            <trim prefix="participant1_phone = CASE upload_id" suffix="END,">
+                <foreach collection="participants" item="p">
+                    <if test="p.participant1Phone != null">WHEN #{p.uploadId} THEN #{p.participant1Phone}</if>
+                </foreach>
+            </trim>
+            <trim prefix="participant2_name = CASE upload_id" suffix="END,">
+                <foreach collection="participants" item="p">
+                    <if test="p.participant2Name != null">WHEN #{p.uploadId} THEN #{p.participant2Name}</if>
+                </foreach>
+            </trim>
+            <trim prefix="participant2_birth = CASE upload_id" suffix="END,">
+                <foreach collection="participants" item="p">
+                    <if test="p.participant2Birth != null">WHEN #{p.uploadId} THEN #{p.participant2Birth}</if>
+                </foreach>
+            </trim>
+            <trim prefix="participant2_phone = CASE upload_id" suffix="END,">
+                <foreach collection="participants" item="p">
+                    <if test="p.participant2Phone != null">WHEN #{p.uploadId} THEN #{p.participant2Phone}</if>
+                </foreach>
+            </trim>
+            <trim prefix="user_yn = CASE upload_id" suffix="END,">
+                <foreach collection="participants" item="p">
+                    <if test="p.participant2Phone != null">WHEN #{p.uploadId} THEN #{p.userYn}</if>
+                </foreach>
+            </trim>
+        </trim>
+        WHERE upload_id IN
+        <foreach collection="participants" item="p" open="(" separator="," close=")">
+            #{p.uploadId}
+        </foreach>
+    </update>
+
+
     <delete id="deleteById">
         DELETE FROM bg_participant WHERE participant_id = #{participantId}
+    </delete>
+
+    <delete id="deleteAllByEventId" parameterType="long">
+        DELETE FROM bg_participant_upload WHERE event_id = #{eventId}
+    </delete>
+
+    <delete id="deleteByIds">
+        DELETE FROM bg_participant_upload
+        WHERE upload_id IN
+        <foreach collection="uploadIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </delete>
 
     <select id="getStatsByEventType" resultType="com.yeoni.birdilegoapi.domain.dto.participant.ParticipantStats">

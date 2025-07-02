@@ -11,6 +11,7 @@ import com.yeoni.birdilegoapi.mapper.ParticipantMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -61,23 +62,32 @@ public class ParticipantService {
     }
 
     @Transactional
-    public ParticipantEntity registerSingleParticipant(ParticipantEntity participant, Long eventId, Long uploaderId) {
-        if (participant == null) {
-            throw new IllegalArgumentException("참가자 정보가 비어있습니다.");
-        }
-        participant.setEventId(eventId);
-        participant.setUploaderId(uploaderId);
-        participantMapper.save(participant); // MyBatis는 insert 후 participant 객체에 생성된 ID를 자동으로 채워줍니다.
-        return participant;
-    }
-
-
-
-    @Transactional
     public ParticipantEntity registerParticipant(Long eventId, ParticipantEntity participant) {
+        if (participant == null) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+        }
         participant.setEventId(eventId);
         participantMapper.save(participant);
         return participant;
+    }
+
+    /**
+     * 여러 명의 참가자 정보를 JSON 배열로 받아 일괄 등록하는 서비스 메서드
+     */
+    @Transactional
+    public void registerMultipleParticipants(List<ParticipantEntity> participants, Long eventId, Long uploaderId) {
+        if (CollectionUtils.isEmpty(participants)) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+
+        // 각 참가자 객체에 eventId와 uploaderId를 설정
+        for (ParticipantEntity participant : participants) {
+            participant.setEventId(eventId);
+            participant.setUploaderId(uploaderId);
+            // TODO: 각 참가자 정보에 대한 유효성 검증 로직 추가 가능
+        }
+
+        participantMapper.saveBatch(participants);
     }
 
     public Optional<ParticipantEntity> getParticipantById(Long participantId) {
@@ -103,6 +113,18 @@ public class ParticipantService {
             .orElseThrow(() -> new CustomException(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 
+    /**
+     * 여러 참가자 정보를 일괄 수정하는 서비스 메서드
+     */
+    @Transactional
+    public void updateMultipleParticipants(List<ParticipantEntity> participants) {
+        if (participants == null || participants.isEmpty()) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+        // TODO: 수정 전, 각 참가자가 DB에 실제로 존재하는지 확인하는 검증 로직 추가 가능
+        participantMapper.updateMultiple(participants);
+    }
+
     @Transactional
     public void deleteParticipant(Long participantId) {
 
@@ -110,6 +132,27 @@ public class ParticipantService {
             .orElseThrow(() -> new CustomException(ErrorCode.PARTICIPANT_NOT_FOUND));
 
         participantMapper.deleteById(participantId);
+    }
+
+    /**
+     * 특정 대회의 모든 참가자를 삭제하는 서비스 메서드
+     */
+    @Transactional
+    public void deleteAllParticipantsByEvent(Long eventId) {
+        // TODO: 권한 체크 로직 추가 가능 (예: 대회 생성자만 삭제 가능)
+        participantMapper.deleteAllByEventId(eventId);
+    }
+
+    /**
+     * 여러 참가자를 일괄 삭제하는 서비스 메서드
+     */
+    @Transactional
+    public void deleteMultipleParticipants(List<Long> uploadIds) {
+        if (uploadIds == null || uploadIds.isEmpty()) {
+            throw new CustomException(ErrorCode.PARTICIPANT_NOT_FOUND);
+        }
+        // TODO: 권한 체크 로직 추가 가능
+        participantMapper.deleteByIds(uploadIds);
     }
 
     /**

@@ -77,6 +77,31 @@ public class ParticipantController {
                 .build());
     }
 
+    /**
+     * 여러 참가자 정보를 JSON 배열로 받아 일괄 등록하는 API
+     */
+    @PostMapping("/register-multiple")
+    public ResponseEntity<CommonResponse<Void>> registerMultipleParticipants(
+        @PathVariable Long eventId,
+        @RequestBody List<ParticipantEntity> participants,
+        @AuthenticationPrincipal UserDetails userDetails) {
+
+        try {
+            Long uploaderId = userMapper.findByLoginId(userDetails.getUsername())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)).getUserId();
+
+            participantService.registerMultipleParticipants(participants, eventId, uploaderId);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.<Void>builder()
+                .status(HttpStatus.CREATED.value())
+                .code("SUCCESS")
+                .message("여러 참가자가 성공적으로 등록되었습니다.")
+                .build());
+        } catch (IllegalArgumentException e) {
+            return this.<Void>buildErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST, "INVALID_INPUT");
+        }
+    }
+
     @GetMapping
     public ResponseEntity<CommonResponse<List<ParticipantEntity>>> getParticipants(
         @PathVariable Long eventId,
@@ -117,6 +142,26 @@ public class ParticipantController {
             .build());
     }
 
+    /**
+     * 선택된 여러 참가자 정보를 일괄 수정하는 API
+     */
+    @PutMapping
+    public ResponseEntity<CommonResponse<Void>> updateMultipleParticipants(
+        @PathVariable Long eventId,
+        @RequestBody List<ParticipantEntity> participants) {
+
+        try {
+            participantService.updateMultipleParticipants(participants);
+            return ResponseEntity.ok(CommonResponse.<Void>builder()
+                .status(HttpStatus.OK.value())
+                .code("SUCCESS")
+                .message("선택된 참가자 정보가 성공적으로 수정되었습니다.")
+                .build());
+        } catch (IllegalArgumentException e) {
+            return this.<Void>buildErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST, "INVALID_INPUT");
+        }
+    }
+
     @DeleteMapping("/{participantId}")
     public ResponseEntity<CommonResponse<Void>> deleteParticipant(@PathVariable Long participantId, @PathVariable String eventId) {
         participantService.deleteParticipant(participantId);
@@ -125,6 +170,40 @@ public class ParticipantController {
             .code("SUCCESS")
             .message("참가자 정보가 성공적으로 삭제되었습니다.")
             .build());
+    }
+
+    /**
+     * 특정 대회의 모든 참가자를 삭제하는 API
+     */
+    @DeleteMapping("/all")
+    public ResponseEntity<CommonResponse<Void>> deleteAllParticipants(@PathVariable Long eventId) {
+        participantService.deleteAllParticipantsByEvent(eventId);
+        return ResponseEntity.ok(CommonResponse.<Void>builder()
+            .status(HttpStatus.OK.value())
+            .code("SUCCESS")
+            .message("해당 대회의 모든 참가자가 성공적으로 삭제되었습니다.")
+            .build());
+    }
+
+    /**
+     * 선택된 여러 참가자를 일괄 삭제하는 API
+     */
+    @DeleteMapping
+    public ResponseEntity<CommonResponse<Void>> deleteMultipleParticipants(
+        @PathVariable Long eventId,
+        @RequestBody List<Long> uploadIds) {
+        // eventId는 특정 대회의 컨텍스트를 유지하기 위해 경로에 포함, 실제 로직엔 불필요
+        try {
+            participantService.deleteMultipleParticipants(uploadIds);
+            return ResponseEntity.ok(CommonResponse.<Void>builder()
+                .status(HttpStatus.OK.value())
+                .code("SUCCESS")
+                .message("선택된 참가자가 성공적으로 삭제되었습니다.")
+                .build());
+        } catch (IllegalArgumentException e) {
+            // buildErrorResponse 메서드 재활용
+            return this.<Void>buildErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST, "INVALID_INPUT");
+        }
     }
 
     /**
