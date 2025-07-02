@@ -1,4 +1,4 @@
-create table birdiego.bg_code
+create or replace table birdiego.bg_code
 (
     code_type   varchar(50)                           not null comment '코드 그룹 (e.g., MATCH_TYPE, CATEGORY, AGE_GROUP, SKILL_LEVEL, ROUND)',
     code        varchar(50)                           not null comment '코드 값',
@@ -10,80 +10,58 @@ create table birdiego.bg_code
 )
     comment '통합 코드' collate = utf8mb4_unicode_ci;
 
-create index idx_code_type
+create or replace index idx_code_type
     on birdiego.bg_code (code_type);
 
-create index idx_use_yn
+create or replace index idx_use_yn
     on birdiego.bg_code (use_yn);
 
-create table birdiego.bg_participant_upload_log
+create or replace table birdiego.bg_match_result
 (
-    upload_id      bigint auto_increment comment '업로드 아아디'
+    match_id        bigint                                 not null comment '경기 아아디'
         primary key,
-    uploader       varchar(100)                            not null comment '업로더',
-    original_name  varchar(200)                            not null comment '원파일명',
-    log_status     varchar(20) default 'PENDING'           null comment 'PENDING / COMPLETED / FAILED',
-    error_message  text                                    null comment '에러 메시지',
-    file_size      bigint                                  null comment '파일 크기 (bytes)',
-    processed_rows int         default 0                   null comment '처리된 행 수',
-    uploaded_at    timestamp   default current_timestamp() null,
-    completed_at   timestamp                               null comment '완료시간'
+    winner_team_no  int                                    null comment '승리팀 번호 (1, 2, NULL for draw)',
+    total_sets      int        default 0                   null comment '총 세트',
+    team1_sets_won  int        default 0                   null comment '팀1 승리 세트',
+    team2_sets_won  int        default 0                   null comment '팀2 승리 세트',
+    match_completed tinyint(1) default 0                   null comment '경기 완료 여부',
+    completed_at    timestamp                              null comment '경기 완료 시간',
+    updated_at      timestamp  default current_timestamp() null on update current_timestamp(),
+    constraint chk_winner_team
+        check (`winner_team_no` in (1, 2) or `winner_team_no` is null)
 )
-    comment '엑셀 업로드 로그 테이블' collate = utf8mb4_unicode_ci;
+    comment '경기 결과 요약 테이블 (성능 최적화용)' collate = utf8mb4_unicode_ci;
 
-create index idx_log_status
-    on birdiego.bg_participant_upload_log (log_status);
+create or replace index idx_match_completed
+    on birdiego.bg_match_result (match_completed);
 
-create index idx_uploaded_at
-    on birdiego.bg_participant_upload_log (uploaded_at);
+create or replace index idx_winner_team
+    on birdiego.bg_match_result (winner_team_no);
 
-create table birdiego.bg_permission
+create or replace table birdiego.bg_match_set_score
 (
-    perm_id    bigint auto_increment
+    set_score_id bigint auto_increment comment '경기 세트 아이디'
         primary key,
-    resource   varchar(100)                          not null comment '예: /api/matches',
-    action     varchar(20)                           not null comment '예: READ, WRITE, DELETE',
-    perm_desc  varchar(200)                          null comment '권한 설명',
-    created_at timestamp default current_timestamp() null,
-    constraint uk_resource_action
-        unique (resource, action)
+    match_id     bigint                                not null comment '경기 아이디',
+    set_number   int                                   not null comment '세트 번호 (1, 2, 3)',
+    team1_score  int       default 0                   not null,
+    team2_score  int       default 0                   not null,
+    set_winner   int                                   null comment '세트 승자 팀 번호 (1 or 2)',
+    created_at   timestamp default current_timestamp() null,
+    updated_at   timestamp                             null on update current_timestamp(),
+    constraint uk_match_set
+        unique (match_id, set_number),
+    constraint chk_set_number
+        check (`set_number` > 0),
+    constraint chk_set_winner
+        check (`set_winner` in (1, 2) or `set_winner` is null)
 )
-    comment '퍼미션 테이블' collate = utf8mb4_unicode_ci;
+    comment '경기 세트 점수' collate = utf8mb4_unicode_ci;
 
-create index idx_resource
-    on birdiego.bg_permission (resource);
+create or replace index idx_match_id
+    on birdiego.bg_match_set_score (match_id);
 
-create table birdiego.bg_role
-(
-    role_id    bigint auto_increment
-        primary key,
-    role_name  varchar(50)                           not null,
-    role_desc  varchar(200)                          null comment '롤 설명',
-    created_at timestamp default current_timestamp() null,
-    constraint role_name
-        unique (role_name)
-)
-    collate = utf8mb4_unicode_ci;
-
-create index idx_role_name
-    on birdiego.bg_role (role_name);
-
-create table birdiego.bg_role_perm
-(
-    role_id    bigint                                not null,
-    perm_id    bigint                                not null,
-    granted_at timestamp default current_timestamp() null,
-    primary key (role_id, perm_id),
-    constraint fk_role_perm_perm
-        foreign key (perm_id) references birdiego.bg_permission (perm_id)
-            on delete cascade,
-    constraint fk_role_perm_role
-        foreign key (role_id) references birdiego.bg_role (role_id)
-            on delete cascade
-)
-    comment '롤↔퍼미션 매핑' collate = utf8mb4_unicode_ci;
-
-create table birdiego.bg_user
+create or replace table birdiego.bg_user
 (
     user_id       bigint auto_increment comment '유저 아이디'
         primary key,
@@ -103,7 +81,7 @@ create table birdiego.bg_user
 )
     comment '사용자' collate = utf8mb4_unicode_ci;
 
-create table birdiego.bg_address
+create or replace table birdiego.bg_address
 (
     address_id      bigint auto_increment comment '주소ID'
         primary key,
@@ -119,10 +97,10 @@ create table birdiego.bg_address
 )
     comment '주소' collate = utf8mb4_unicode_ci;
 
-create index idx_coordinates
+create or replace index idx_coordinates
     on birdiego.bg_address (latitude, longitude);
 
-create table birdiego.bg_event
+create or replace table birdiego.bg_event
 (
     event_id           bigint auto_increment comment '대회 아이디'
         primary key,
@@ -154,22 +132,22 @@ create table birdiego.bg_event
 )
     comment '대회 정보' collate = utf8mb4_unicode_ci;
 
-create index idx_creator_id
+create or replace index idx_creator_id
     on birdiego.bg_event (creator_id);
 
-create index idx_event_dates
+create or replace index idx_event_dates
     on birdiego.bg_event (start_date, end_date);
 
-create index idx_event_status
+create or replace index idx_event_status
     on birdiego.bg_event (event_status);
 
-create index idx_region
+create or replace index idx_region
     on birdiego.bg_event (region);
 
-create index idx_registration_dates
+create or replace index idx_registration_dates
     on birdiego.bg_event (registration_start, registration_end);
 
-create table birdiego.bg_event_file
+create or replace table birdiego.bg_event_file
 (
     file_id            bigint auto_increment comment '파일 ID'
         primary key,
@@ -185,7 +163,7 @@ create table birdiego.bg_event_file
 )
     comment '이벤트 첨부 파일' collate = utf8mb4_unicode_ci;
 
-create table birdiego.bg_event_sponsor
+create or replace table birdiego.bg_event_sponsor
 (
     sponsor_id   bigint auto_increment comment '스폰서 아이디'
         primary key,
@@ -200,50 +178,7 @@ create table birdiego.bg_event_sponsor
 )
     comment '스폰서';
 
-create table birdiego.bg_match
-(
-    match_id       bigint auto_increment comment '경기 아이디'
-        primary key,
-    event_id       bigint                                  not null comment '대회 아이디',
-    match_datetime datetime                                not null comment '경기 시간',
-    start_time     datetime                                null comment '경기 시작시간',
-    end_time       datetime                                null comment '경기 종료시간',
-    court_no       varchar(20)                             null,
-    match_type     varchar(20)                             not null comment '경기 타입',
-    category       varchar(20)                             not null comment '경기 카테코기',
-    age_group      varchar(10)                             not null comment '경기 나이',
-    match_level    varchar(10)                             null comment '경기 급수',
-    match_status   varchar(20) default 'SCHEDULED'         null comment '경기 상태',
-    created_at     timestamp   default current_timestamp() null,
-    updated_at     timestamp                               null on update current_timestamp(),
-    round_info     varchar(50)                             null comment '토너먼트 라운드 (예선, 16강, 8강 등)',
-    group_name     varchar(20)                             null comment '조 이름 (리그전의 경우)',
-    match_order    int                                     null comment '경기 순서',
-    constraint fk_bg_match_event
-        foreign key (event_id) references birdiego.bg_event (event_id)
-            on delete cascade
-)
-    comment '경기' collate = utf8mb4_unicode_ci;
-
-create index idx_category
-    on birdiego.bg_match (category);
-
-create index idx_court_no
-    on birdiego.bg_match (court_no);
-
-create index idx_match_datetime
-    on birdiego.bg_match (match_datetime);
-
-create index idx_match_event
-    on birdiego.bg_match (event_id);
-
-create index idx_match_status
-    on birdiego.bg_match (match_status);
-
-create index idx_match_type
-    on birdiego.bg_match (match_type);
-
-create table birdiego.bg_match_group
+create or replace table birdiego.bg_match_group
 (
     group_id    bigint auto_increment comment '조 ID'
         primary key,
@@ -261,78 +196,53 @@ create table birdiego.bg_match_group
 )
     comment '대진표 조 정보' collate = utf8mb4_unicode_ci;
 
-create index idx_group_event_id
+create or replace table birdiego.bg_match
+(
+    match_id     bigint auto_increment comment '경기 ID'
+        primary key,
+    event_id     bigint                                  not null comment '대회 ID (FK)',
+    group_id     bigint                                  not null comment '조 ID (FK)',
+    group_name   varchar(100)                            null comment '조 이름',
+    court        varchar(50)                             null comment '배정된 코트',
+    match_time   datetime                                not null comment '경기 시작 시간',
+    team1_id     bigint                                  not null comment '팀1 참가자 ID',
+    team1_name   varchar(100)                            null comment '팀1 이름',
+    team2_id     bigint                                  not null comment '팀2 참가자 ID',
+    team2_name   varchar(100)                            null comment '팀2 이름',
+    match_status varchar(20) default 'SCHEDULED'         null comment '경기 상태',
+    created_at   timestamp   default current_timestamp() null,
+    round_info   varchar(50)                             not null comment ' 토너먼트 정보(예선, 16강, 8강 등)',
+    constraint fk_match_event
+        foreign key (event_id) references birdiego.bg_event (event_id)
+            on delete cascade,
+    constraint fk_match_group
+        foreign key (group_id) references birdiego.bg_match_group (group_id)
+            on delete cascade
+)
+    comment '경기 정보' collate = utf8mb4_unicode_ci;
+
+create or replace index idx_group_event_id
     on birdiego.bg_match_group (event_id);
 
-create table birdiego.bg_match_result
-(
-    match_id        bigint                                 not null comment '경기 아아디'
-        primary key,
-    winner_team_no  int                                    null comment '승리팀 번호 (1, 2, NULL for draw)',
-    total_sets      int        default 0                   null comment '총 세트',
-    team1_sets_won  int        default 0                   null comment '팀1 승리 세트',
-    team2_sets_won  int        default 0                   null comment '팀2 승리 세트',
-    match_completed tinyint(1) default 0                   null comment '경기 완료 여부',
-    completed_at    timestamp                              null comment '경기 완료 시간',
-    updated_at      timestamp  default current_timestamp() null on update current_timestamp(),
-    constraint fk_match_result_match
-        foreign key (match_id) references birdiego.bg_match (match_id)
-            on delete cascade,
-    constraint chk_winner_team
-        check (`winner_team_no` in (1, 2) or `winner_team_no` is null)
-)
-    comment '경기 결과 요약 테이블 (성능 최적화용)' collate = utf8mb4_unicode_ci;
-
-create index idx_match_completed
-    on birdiego.bg_match_result (match_completed);
-
-create index idx_winner_team
-    on birdiego.bg_match_result (winner_team_no);
-
-create table birdiego.bg_match_set_score
-(
-    set_score_id bigint auto_increment comment '경기 세트 아이디'
-        primary key,
-    match_id     bigint                                not null comment '경기 아이디',
-    set_number   int                                   not null comment '세트 번호 (1, 2, 3)',
-    team1_score  int       default 0                   not null,
-    team2_score  int       default 0                   not null,
-    set_winner   int                                   null comment '세트 승자 팀 번호 (1 or 2)',
-    created_at   timestamp default current_timestamp() null,
-    updated_at   timestamp                             null on update current_timestamp(),
-    constraint uk_match_set
-        unique (match_id, set_number),
-    constraint fk_set_score_match
-        foreign key (match_id) references birdiego.bg_match (match_id)
-            on delete cascade,
-    constraint chk_set_number
-        check (`set_number` > 0),
-    constraint chk_set_winner
-        check (`set_winner` in (1, 2) or `set_winner` is null)
-)
-    comment '경기 세트 점수' collate = utf8mb4_unicode_ci;
-
-create index idx_match_id
-    on birdiego.bg_match_set_score (match_id);
-
-create table birdiego.bg_participant
+create or replace table birdiego.bg_participant
 (
     participant_id     bigint auto_increment comment '참가팀 ID'
         primary key,
-    event_id           bigint                                not null comment '대회 ID',
-    uploader_id        bigint                                not null comment '업로더 ID (user_id)',
-    event_type         varchar(50)                           null comment '종목 (예: 혼복, 남복, 여복)',
-    age_group          varchar(20)                           null comment '연령대 (예: 20, 30, 40)',
-    skill_level        varchar(20)                           null comment '급수 (예: A, B, C)',
-    team_name          varchar(100)                          null comment '팀명',
-    participant1_name  varchar(100)                          not null comment '선수1 이름',
-    participant1_birth varchar(50)                           null comment '선수1 생년월일',
-    participant1_phone varchar(50)                           null comment '선수1 전화번호',
-    participant2_name  varchar(100)                          null comment '선수2 이름',
-    participant2_birth varchar(50)                           null comment '선수2 생년월일',
-    participant2_phone varchar(50)                           null comment '선수2 전화번호',
-    created_at         timestamp default current_timestamp() null comment '등록 일자',
-    updated_at         timestamp                             null on update current_timestamp() comment '수정 일자',
+    event_id           bigint                                 not null comment '대회 ID',
+    uploader_id        bigint                                 not null comment '업로더 ID (user_id)',
+    event_type         varchar(50)                            null comment '종목 (예: 혼복, 남복, 여복)',
+    age_group          varchar(20)                            null comment '연령대 (예: 20, 30, 40)',
+    skill_level        varchar(20)                            null comment '급수 (예: A, B, C)',
+    team_name          varchar(100)                           null comment '팀명',
+    participant1_name  varchar(100)                           not null comment '선수1 이름',
+    participant1_birth varchar(50)                            null comment '선수1 생년월일',
+    participant1_phone varchar(50)                            null comment '선수1 전화번호',
+    participant2_name  varchar(100)                           null comment '선수2 이름',
+    participant2_birth varchar(50)                            null comment '선수2 생년월일',
+    participant2_phone varchar(50)                            null comment '선수2 전화번호',
+    created_at         timestamp  default current_timestamp() null comment '등록 일자',
+    updated_at         timestamp                              null on update current_timestamp() comment '수정 일자',
+    user_yn            varchar(1) default 'N'                 null comment '민턴장회원여부',
     constraint fk_participant_upload_event
         foreign key (event_id) references birdiego.bg_event (event_id)
             on delete cascade,
@@ -342,7 +252,7 @@ create table birdiego.bg_participant
 )
     comment '참가자팀' collate = utf8mb4_unicode_ci;
 
-create table birdiego.bg_match_group_team
+create or replace table birdiego.bg_match_group_team
 (
     group_team_id  bigint auto_increment comment '조-팀 매핑 ID'
         primary key,
@@ -361,22 +271,22 @@ create table birdiego.bg_match_group_team
 )
     comment '대진표 조-팀 매핑' collate = utf8mb4_unicode_ci;
 
-create index idx_event_id
+create or replace index idx_event_id
     on birdiego.bg_participant (event_id);
 
-create index idx_uploader_id
+create or replace index idx_uploader_id
     on birdiego.bg_participant (uploader_id);
 
-create table birdiego.bg_refresh_token
+create or replace table birdiego.bg_refresh_token
 (
-    token_id   bigint auto_increment
+    token_id   bigint auto_increment comment '리플래쉬토큰 아이디'
         primary key,
-    user_id    bigint                                 not null,
-    token      varchar(512)                           not null,
-    issued_at  timestamp  default current_timestamp() null,
-    expires_at timestamp                              not null,
-    revoked    tinyint(1) default 0                   null,
-    revoked_at timestamp                              null,
+    user_id    bigint                                 not null comment '유저 아이디',
+    token      varchar(512)                           not null comment '토큰정보',
+    issued_at  timestamp  default current_timestamp() null comment '생성시간',
+    expires_at timestamp                              not null comment '만료시간',
+    revoked    tinyint(1) default 0                   null comment '거절여부',
+    revoked_at timestamp                              null comment '거결등록시간',
     user_agent varchar(500)                           null comment '사용자 에이전트 정보',
     ip_address varchar(45)                            null comment 'IP 주소',
     constraint token
@@ -387,28 +297,28 @@ create table birdiego.bg_refresh_token
 )
     comment 'Refresh 토큰 저장' collate = utf8mb4_unicode_ci;
 
-create index idx_expires_at
+create or replace index idx_expires_at
     on birdiego.bg_refresh_token (expires_at);
 
-create index idx_revoked
+create or replace index idx_revoked
     on birdiego.bg_refresh_token (revoked);
 
-create index idx_token
+create or replace index idx_token
     on birdiego.bg_refresh_token (token);
 
-create index idx_user_id
+create or replace index idx_user_id
     on birdiego.bg_refresh_token (user_id);
 
-create index idx_email
+create or replace index idx_email
     on birdiego.bg_user (email);
 
-create index idx_enabled
+create or replace index idx_enabled
     on birdiego.bg_user (enabled);
 
-create index idx_login_id
+create or replace index idx_login_id
     on birdiego.bg_user (login_id);
 
-create table birdiego.bg_user_file
+create or replace table birdiego.bg_user_file
 (
     file_id            bigint auto_increment comment '파일 ID'
         primary key,
@@ -424,21 +334,6 @@ create table birdiego.bg_user_file
 )
     comment '사용자 이미지' collate = utf8mb4_unicode_ci;
 
-create index fk_user_image_user
+create or replace index fk_user_image_user
     on birdiego.bg_user_file (user_id);
-
-create table birdiego.bg_user_role
-(
-    user_id     bigint                                not null,
-    role_id     bigint                                not null,
-    assigned_at timestamp default current_timestamp() null,
-    primary key (user_id, role_id),
-    constraint fk_user_role_role
-        foreign key (role_id) references birdiego.bg_role (role_id)
-            on delete cascade,
-    constraint fk_user_role_user
-        foreign key (user_id) references birdiego.bg_user (user_id)
-            on delete cascade
-)
-    comment '사용자↔롤 매핑' collate = utf8mb4_unicode_ci;
 
