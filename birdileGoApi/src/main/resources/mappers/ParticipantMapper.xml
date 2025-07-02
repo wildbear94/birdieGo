@@ -29,7 +29,7 @@
     </select>
 
     <select id="findByEventId" resultType="com.yeoni.birdilegoapi.domain.entity.ParticipantEntity">
-        SELECT * FROM bg_participant WHERE event_id = #{eventId} ORDER BY uploader_id ASC
+        SELECT * FROM bg_participant WHERE event_id = #{eventId} ORDER BY age_group, skill_level
     </select>
 
     <select id="findByEventIdAndEventType" resultType="com.yeoni.birdilegoapi.domain.entity.ParticipantEntity">
